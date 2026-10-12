@@ -1,0 +1,56 @@
+{
+  "name": "@red-cup-engineering/computer",
+  "version": "0.4.0",
+  "type": "module",
+  "description": "Red Cup Engineering's computer: federated EAVT worlds, principals and processes over the EAVT section's evidence fold.",
+  "keywords": [
+    "posix",
+    "eavt",
+    "voidmath",
+    "computing",
+    "561-group"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/bare-cedar-fog.git",
+    "directory": "services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/services/561-group-computer"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    "./distribution": "./distribution/src/distribution.mjs",
+    "./distribution/federate": "./distribution/src/federate.mjs",
+    "./distribution/governance": "./distribution/src/governance.mjs",
+    "./distribution/cost": "./distribution/src/cost.mjs",
+    "./principal": "./principal/src/principal-barrel.mjs",
+    "./principal/tool": "./principal/src/principal.mjs",
+    "./process-runtime/allocation": "./process-runtime/src/allocation.mjs",
+    "./typed-filepath-addressing-system/addressing": "./typed-filepath-addressing-system/addressing/scripts/address.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "principal/src",
+    "process-runtime/src",
+    "typed-filepath-addressing-system",
+    "distribution/src",
+    "distribution/tests",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "test": "node --test distribution/tests/federate.test.mjs && node --test principal/tests/principal.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/metrologic": "workspace:*",
+    "@red-cup-engineering/cbor-services-section": "workspace:*",
+    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
+    "@red-cup-engineering/json-services-section": "workspace:*",
+    "@red-cup-engineering/signgraph": "workspace:*",
+    "@red-cup-engineering/signcell": "workspace:*"
+  }
+}

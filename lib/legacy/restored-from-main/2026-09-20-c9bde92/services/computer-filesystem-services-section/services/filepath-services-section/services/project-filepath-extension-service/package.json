@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/project-filepath-extension-service",
+  "version": "0.1.0",
+  "description": "Projects one filepath spelling to its final extension, including the dot, or the empty string when it has none, without observing the filesystem.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/project-filepath-extension.mjs",
+  "bin": {
+    "project-filepath-extension": "scripts/project-filepath-extension.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/project-filepath-extension.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

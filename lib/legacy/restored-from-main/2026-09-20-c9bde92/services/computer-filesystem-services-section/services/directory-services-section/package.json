@@ -1,0 +1,30 @@
+{
+  "name": "@red-cup-engineering/directory-services-section",
+  "version": "0.3.1",
+  "type": "module",
+  "description": "Observes one directory level and relocates complete directories without interpreting the files they carry.",
+  "exports": {
+    "./relocate-directory": "./scripts/relocate-directory.mjs",
+    "./list-directory-entries": "./scripts/list-directory-entries.mjs",
+    "./merge-directory-contents": "./scripts/merge-directory-contents.mjs"
+  },
+  "bin": {
+    "relocate-directory": "./scripts/relocate-directory.mjs",
+    "list-directory-entries": "./scripts/list-directory-entries.mjs",
+    "merge-directory-contents": "./scripts/merge-directory-contents.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/filepath-services-section": "0.1.0",
+    "@red-cup-engineering/javascript-file-main-guard-service": "0.1.3"
+  },
+  "files": [
+    "scripts"
+  ],
+  "scripts": {
+    "check": "node --check scripts/*.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "name": "@561-group/memetics",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Meme Trace Information and Computing Service — a paraconsistent process kernel over MPU+MMU. Processes settle to Knaster–Tarski fixed points; contradictions are held as stable readings, never errors.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/561-group/memetics.git"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "test": "node --test \"src/**/*.test.mjs\"",
+    "clean": "rm -rf dist",
+    "prepack": "npm run build"
+  },
+  "exports": {
+    "./boot": {
+      "import": "./src/boot.mjs"
+    },
+    "./process": {
+      "import": "./src/process.mjs"
+    },
+    "./governance": {
+      "import": "./src/governance.mjs"
+    },
+    "./allocation": {
+      "import": "./src/allocation.mjs"
+    },
+    "./dispatch": {
+      "import": "./src/dispatch.mjs"
+    },
+    "./request-queue": {
+      "import": "./src/request-queue.mjs"
+    },
+    "./scheduler": {
+      "import": "./src/scheduler.mjs"
+    },
+    "./syscall": {
+      "import": "./src/syscall.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/metrologic": "workspace:*",
+    "@red-cup-engineering/computer": "workspace:*",
+    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/signcell": "workspace:*",
+    "@red-cup-engineering/signchain": "workspace:*",
+    "@red-cup-engineering/signcraft": "workspace:*",
+    "@red-cup-engineering/signgraph": "workspace:*"
+  },
+  "sideEffects": false
+}

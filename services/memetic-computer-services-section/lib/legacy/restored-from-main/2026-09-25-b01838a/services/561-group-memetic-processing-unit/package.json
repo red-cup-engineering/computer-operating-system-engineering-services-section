@@ -1,0 +1,41 @@
+{
+  "name": "@561-group/memetic-processing-unit",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "The Memetic Processing Unit: a processing unit whose word is a bilattice charge — a predication-bit, not a boolean bit — and whose instruction set is the structure-preserving four-regime descent and its modal calculus. Utterances (token, claim) are processed through articulate → predicate → posit → settle into a glued sheaf SECTION; nothing is reduced to a scalar. Data types sourced from @561-group/meme; the four-valued evidence, graph, exact-arithmetic, fixed-point and spectral mathematics are @lenticule-science/metrologic's, imported from it directly.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emsenn/561-group.git",
+    "directory": "lib/memetic-processing-unit"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "test": "node --test \"src/**/*.test.mjs\"",
+    "clean": "rm -rf dist",
+    "prepack": "npm run build"
+  },
+  "main": "./src/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./src/index.mjs"
+    },
+    "./compose": {
+      "import": "./src/compose.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "docs",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@lenticule-science/metrologic": "0.3.0",
+    "@red-cup-engineering/computer-systems-engineering-services-section": "0.1.0",
+    "@red-cup-engineering/computer-data-engineering-services-section": "0.1.0"
+  },
+  "sideEffects": false
+}

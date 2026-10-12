@@ -1,0 +1,20 @@
+{
+  "name": "@red-cup-engineering/computer-operating-system-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Operating-system effects over this repo's own machines: reads and seeds host state that no single sub-service under this section already owns.",
+  "exports": {
+    "./seed-systemd-services": "./scripts/seed-systemd-services.mjs",
+    "./windows-physical-observation": "./src/windows-physical-observation.mjs"
+  },
+  "bin": {
+    "seed-systemd-services": "./scripts/seed-systemd-services.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
+    "@red-cup-engineering/systemd-unit-inventory-observation-service": "workspace:*"
+  }
+}

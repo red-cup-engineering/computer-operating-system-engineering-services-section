@@ -1,0 +1,13 @@
+{
+  "name": "@red-cup-engineering/wsl-host-service",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Generic WSL2 host engineering: renders and idempotently installs a WSL2 host's Windows-side and Linux-side configuration from one parameter record.",
+  "files": ["assets", "scripts", "specifications", "src"],
+  "scripts": { "test": "node --test test/*.test.mjs" },
+  "engines": { "node": ">=22" },
+  "bin": { "wsl-host": "./scripts/wsl-host.mjs" },
+  "exports": {
+    ".": "./src/wsl-host.mjs"
+  }
+}

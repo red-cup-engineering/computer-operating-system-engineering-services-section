@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://active.development.561.group/lib/meme/schema/fiber-algebra.schema.json",
+  "title": "fiber-algebra",
+  "description": "FiberAlgebra (settlement fiber): the charged assignments over a single predicate's E × E square. Each assignment is a meme — a cell with its measured charge. The per-predicate component of the settled valuation; settle iterates these to their knowledge-least fixed point.",
+  "type": "object",
+  "properties": {
+    "entity-set": {
+      "type": "object",
+      "properties": {
+        "entities": { "type": "array", "description": "The entities E indexing this fiber's E × E domain." }
+      },
+      "required": ["entities"],
+      "description": "The entity set E for this predicate's fiber."
+    },
+    "assignments": {
+      "type": "array",
+      "items": { "$ref": "./meme.schema.json" },
+      "description": "The memes (cell + charge) assigned in this fiber — one per (subject, predicate, object) triple."
+    },
+    "predicate": {
+      "description": "The predicate this fiber-algebra is the stalk over."
+    }
+  },
+  "required": ["entity-set", "assignments", "predicate"],
+  "additionalProperties": false
+}

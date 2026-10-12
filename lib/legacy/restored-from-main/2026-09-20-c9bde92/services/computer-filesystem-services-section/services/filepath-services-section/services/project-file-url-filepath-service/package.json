@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/project-file-url-filepath-service",
+  "version": "0.1.0",
+  "description": "Projects one file: URL spelling, such as a module's import.meta.url, to the platform filepath it names.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/project-file-url-filepath.mjs",
+  "bin": {
+    "project-file-url-filepath": "scripts/project-file-url-filepath.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/project-file-url-filepath.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

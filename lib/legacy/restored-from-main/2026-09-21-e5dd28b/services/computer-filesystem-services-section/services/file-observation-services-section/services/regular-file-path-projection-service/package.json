@@ -1,0 +1,28 @@
+{
+  "name": "@red-cup-engineering/regular-file-path-projection-service",
+  "version": "0.2.0",
+  "description": "Projects a POSIX path-walk observation to the ordered paths of its regular-file entries.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/project-regular-file-paths.mjs",
+  "bin": {
+    "project-regular-file-paths": "./scripts/project-regular-file-paths.mjs"
+  },
+  "files": [
+    "scripts",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-data-engine": "0.10.0",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0"
+  },
+  "scripts": {
+    "check": "node --check scripts/project-regular-file-paths.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

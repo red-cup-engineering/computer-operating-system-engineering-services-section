@@ -1,0 +1,31 @@
+{
+  "name": "@red-cup-engineering/read-text-file-creation-stage-service",
+  "version": "0.1.0",
+  "description": "Reads a staged directory and proves its exact paths, UTF-8 text, modes, and digest against text-file creation projections.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/read-text-file-creation-stage.mjs",
+  "bin": {
+    "read-text-file-creation-stage": "scripts/read-text-file-creation-stage.mjs"
+  },
+  "files": [
+    "scripts",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-data-engine": "0.10.0",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0",
+    "@red-cup-engineering/read-javascript-node-standard-input-text-service": "0.2.1",
+    "@red-cup-engineering/text-file-creation-projection-set-admission-service": "0.1.1",
+    "@red-cup-engineering/write-javascript-node-standard-output-text-service": "0.2.1"
+  },
+  "scripts": {
+    "check": "node --check scripts/read-text-file-creation-stage.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

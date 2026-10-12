@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://active.development.561.group/lib/meme/schema/utterance.schema.json",
+  "title": "utterance",
+  "description": "The bare two-fold [token, claim] — the input to articulate. Token is the identity-carrying side; claim is the content-carrying side. Both are non-assembling primitives that do not decompose further.",
+  "type": "array",
+  "prefixItems": [
+    { "description": "Token: the identity-carrying side. Non-assembling; does not decompose." },
+    { "description": "Claim: the content-carrying side. Non-assembling; does not decompose." }
+  ],
+  "minItems": 2,
+  "maxItems": 2
+}

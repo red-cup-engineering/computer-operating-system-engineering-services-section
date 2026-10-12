@@ -1,0 +1,24 @@
+{
+  "name": "@red-cup-engineering/npm-build-carrier-construction-service",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Constructs and admits Node-runtime OCI container image build carriers and construction authorities from observed images.",
+  "license": "UNLICENSED",
+  "exports": {
+    "./construct-build-carriers": "./scripts/construct-build-carriers.mjs"
+  },
+  "files": [
+    "scripts"
+  ],
+  "scripts": {
+    "check": "node --check scripts/construct-build-carriers.mjs && node --check test/construct-build-carriers.test.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "dependencies": {
+    "@red-cup-engineering/oci-image-observation-service": "0.1.0"
+  },
+  "sideEffects": false
+}

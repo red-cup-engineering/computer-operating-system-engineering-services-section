@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:red-cup-engineering:schema:software-inventory-options:1",
+  "title": "Software inventory observation options",
+  "type": "object",
+  "required": ["root"],
+  "properties": {
+    "root": { "type": "string", "minLength": 1 },
+    "rootBinding": {
+      "type": "object",
+      "required": ["source", "owner", "classification"],
+      "properties": {
+        "source": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }] },
+        "owner": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }] },
+        "classification": { "enum": ["owned-source", "off-tree-owned", "vendor", "cache", "release", "archive", "recovery", "unclassified"] }
+      },
+      "additionalProperties": false
+    },
+    "excludes": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "digestFiles": { "type": "boolean" },
+    "gitmodulesText": { "type": "string" },
+    "gitlinksText": { "type": "string" },
+    "systemdHost": { "type": "string", "minLength": 1 },
+    "systemdInventory": { "$ref": "#/$defs/systemdInventory" },
+    "systemdInventories": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/systemdInventory" } },
+    "systemdSourceBinding": { "$ref": "#/$defs/sourceBinding" }
+  },
+  "$defs": {
+    "systemdInventory": {
+      "type": "object",
+      "required": ["host", "units", "timers"],
+      "properties": {
+        "host": { "type": "string", "minLength": 1 },
+        "units": { "type": "array", "items": { "type": "object" } },
+        "timers": { "type": "array", "items": { "type": "object" } },
+        "sourceBinding": { "$ref": "#/$defs/sourceBinding" }
+      },
+      "additionalProperties": false
+    },
+    "sourceBinding": {
+      "type": "object",
+      "required": ["source", "owner", "classification"],
+      "properties": {
+        "source": { "type": "string", "minLength": 1 },
+        "owner": { "anyOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }] },
+        "classification": { "enum": ["owned-source", "off-tree-owned", "vendor", "cache", "release", "archive", "recovery", "unclassified"] },
+        "aliases": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

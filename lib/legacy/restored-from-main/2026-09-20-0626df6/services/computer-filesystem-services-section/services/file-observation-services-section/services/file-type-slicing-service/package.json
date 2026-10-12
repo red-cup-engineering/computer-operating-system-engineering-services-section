@@ -1,0 +1,23 @@
+{
+  "name": "@red-cup-engineering/file-type-slicing-service",
+  "version": "0.1.1",
+  "type": "module",
+  "description": "Classifies an already-observed file set into deterministic extension slices without touching the filesystem.",
+  "exports": "./scripts/slice-files-by-type.mjs",
+  "bin": {
+    "slice-files-by-type": "./scripts/slice-files-by-type.mjs"
+  },
+  "files": [
+    "scripts"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/javascript-file-main-guard-service": "0.1.3"
+  },
+  "scripts": {
+    "check": "node --check scripts/*.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

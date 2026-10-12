@@ -1,0 +1,42 @@
+{
+  "name": "@561-group/meme",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Provides typing for Memes and related classes and functions.", 
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emsenn/561-group.git",
+    "directory": "lib/meme"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "check": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./primitives": "./src/primitives.ts",
+    "./cell": "./src/cell.ts",
+    "./charge": "./src/charge.ts",
+    "./meme": "./src/meme.ts",
+    "./fiber": "./src/fiber.ts",
+    "./presheaf": "./src/presheaf.ts",
+    "./morphisms": "./src/morphisms.ts",
+    "./schema/utterance": "./schema/utterance.schema.json",
+    "./schema/bit": "./schema/bit.schema.json",
+    "./schema/cell": "./schema/cell.schema.json",
+    "./schema/charge": "./schema/charge.schema.json",
+    "./schema/meme": "./schema/meme.schema.json",
+    "./schema/fiber-algebra": "./schema/fiber-algebra.schema.json",
+    "./schema/posit-presheaf": "./schema/posit-presheaf.schema.json",
+    "./schema/sheaf": "./schema/sheaf.schema.json",
+    "./package.json": "./package.json"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  },
+  "sideEffects": false
+}

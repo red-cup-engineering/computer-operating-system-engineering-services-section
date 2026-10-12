@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/remove-path-service",
+  "version": "0.1.0",
+  "description": "Removes one file or directory tree at a path, and reports the path removed; an absent path is not an error.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/remove-path.mjs",
+  "bin": {
+    "remove-path": "scripts/remove-path.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/remove-path.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

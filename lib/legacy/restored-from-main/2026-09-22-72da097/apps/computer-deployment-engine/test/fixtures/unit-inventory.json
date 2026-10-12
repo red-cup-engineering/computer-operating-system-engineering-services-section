@@ -1,0 +1,17 @@
+{
+  "host": "local",
+  "units": [
+    {
+      "unit": "lagoon-fixture.service",
+      "active": "active",
+      "sub": "running"
+    }
+  ],
+  "timers": [
+    {
+      "unit": "lagoon-fixture.timer",
+      "active": "active",
+      "triggers": "lagoon-fixture.service"
+    }
+  ]
+}

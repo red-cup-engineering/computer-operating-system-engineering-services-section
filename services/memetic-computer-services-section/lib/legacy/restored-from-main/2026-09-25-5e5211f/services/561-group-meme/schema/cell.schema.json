@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://active.development.561.group/lib/meme/schema/cell.schema.json",
+  "title": "cell",
+  "description": "Cell (predication cell): a relational address subject —predicate→ object over Φ = E × Π × E. The identity of a meme — what it is about, not what is said about it.",
+  "type": "object",
+  "properties": {
+    "subject": { "description": "The entity bearing the predication." },
+    "predicate": { "description": "The predicate distinguishing this relation." },
+    "object": { "description": "The entity serving as object of the predication." }
+  },
+  "required": ["subject", "predicate", "object"],
+  "additionalProperties": false
+}

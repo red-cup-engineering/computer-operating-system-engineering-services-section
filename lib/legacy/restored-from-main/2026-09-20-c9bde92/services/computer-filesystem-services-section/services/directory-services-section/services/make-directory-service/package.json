@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/make-directory-service",
+  "version": "0.1.0",
+  "description": "Makes one directory and every missing ancestor, and reports the path made.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/make-directory.mjs",
+  "bin": {
+    "make-directory": "scripts/make-directory.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/make-directory.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

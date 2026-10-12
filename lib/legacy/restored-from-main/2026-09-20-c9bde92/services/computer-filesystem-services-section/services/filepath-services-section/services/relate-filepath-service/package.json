@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/relate-filepath-service",
+  "version": "0.1.0",
+  "description": "Projects the relative filepath spelling from one path to another, without observing the filesystem.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/relate-filepath.mjs",
+  "bin": {
+    "relate-filepath": "scripts/relate-filepath.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/relate-filepath.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

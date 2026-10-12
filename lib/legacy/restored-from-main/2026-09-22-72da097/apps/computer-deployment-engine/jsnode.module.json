@@ -1,0 +1,84 @@
+{
+  "kind": "jsnode.package-module",
+  "version": 1,
+  "package": {
+    "name": "@red-cup-engineering/computer-deployment-engine",
+    "version": "0.1.0"
+  },
+  "model": {
+    "kind": "lagoon.modeled-unix-dimension",
+    "worldState": {
+      "format": "eavt",
+      "defaultPath": "data/state/world.eavt"
+    },
+    "behaviorExecution": "receipt-backed-flatfile-operation-binder"
+  },
+  "behaviors": [
+    {
+      "id": "eavt-worker",
+      "path": "scripts/eavt-worker.mjs",
+      "exportName": "start",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "effect": "stdio worker; declared operation effects only"
+    },
+    {
+      "id": "look-cli",
+      "path": "scripts/look.scm",
+      "exportName": "main",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "string"
+      },
+      "effect": "read: EAVT world trace; write: terminal"
+    },
+    {
+      "id": "verify-worker-contract",
+      "path": "scripts/verify.scm",
+      "exportName": "main",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "string"
+      },
+      "effect": "process: node worker; write: terminal"
+    },
+    {
+      "id": "run-node-worker-tests",
+      "path": "scripts/run-node-worker-tests.scm",
+      "exportName": "main",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "effect": "process: Guile test runner"
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "@red-cup-engineering/eavt",
+      "version": "0.10.4"
+    },
+    {
+      "name": "@red-cup-engineering/flatfile-resource-graph-service",
+      "version": "0.1.0"
+    },
+    {
+      "name": "@red-cup-engineering/inference-dispatch-service",
+      "version": "0.37.3"
+    },
+    {
+      "name": "@red-cup-engineering/systemd-unit-inventory-observation-service",
+      "version": "0.3.2"
+    }
+  ]
+}

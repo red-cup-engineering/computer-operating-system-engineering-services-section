@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://active.development.561.group/lib/meme/schema/sheaf.schema.json",
+  "title": "sheaf",
+  "description": "Sheaf: the glued settled structure — the base category and the settled section (a valuation at the knowledge-least fixed point). The output of settle; H¹ = 0 here. Every cell's charge is at equilibrium; the knowledge closure has quiesced.",
+  "type": "object",
+  "properties": {
+    "base": {
+      "type": "object",
+      "description": "The base category: objects and its four morphism slots."
+    },
+    "section": {
+      "type": "object",
+      "description": "The settled valuation: the base category plus the charged fiber-algebras at the fixed point.",
+      "properties": {
+        "base": { "type": "object" },
+        "fiber-algebras": {
+          "type": "array",
+          "items": { "$ref": "./fiber-algebra.schema.json" },
+          "description": "The per-predicate fiber-algebras at the settled fixed point."
+        }
+      },
+      "required": ["base", "fiber-algebras"]
+    }
+  },
+  "required": ["base", "section"],
+  "additionalProperties": false
+}

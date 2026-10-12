@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://active.development.561.group/lib/meme/schema/charge.schema.json",
+  "title": "charge",
+  "description": "The four-valued word of a meme: two marks (positive, negative) drawn independently over a lossless evidence carrier. Four readings of value [positive, negative]: [F,F]=absurd (⊥, no side); [T,F]=potential (positive only); [F,T]=active (engaged, negative only); [T,T]=stable (⊤, told both). Knowledge order: absurd ↕ stable. Truth order: active ↔ potential. Evidence accumulates and is never discarded.",
+  "type": "object",
+  "properties": {
+    "value": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "boolean", "description": "Positive mark." },
+        { "type": "boolean", "description": "Negative mark." }
+      ],
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "The two independent marks [positive, negative]. Determines the charge phase: absurd [F,F], potential [T,F], active [F,T], stable [T,T]."
+    },
+    "evidence": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "array", "description": "Positive witnesses." },
+        { "type": "array", "description": "Negative witnesses." }
+      ],
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "The lossless carrier [positive-witnesses, negative-witnesses]. Never discarded; accumulates all witnesses."
+    }
+  },
+  "required": ["value", "evidence"],
+  "additionalProperties": false
+}

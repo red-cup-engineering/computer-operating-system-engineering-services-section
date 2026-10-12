@@ -1,0 +1,38 @@
+{
+  "name": "@561-group/memetic-memory-unit",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "The Memetic Memory Unit: an in-memory MemeStore that STORES and READS Memes — nothing more. Memory holds the raw thing-with-evidence; folding/settling is the processing unit's job, and persistence to disk is a later, separate concern. Its only dependency on the processing unit is the Meme data class (a type), so it has no runtime dependency at all.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emsenn/561-group.git",
+    "directory": "lib/memetic-memory-unit"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "test": "node --test \"src/**/*.test.mjs\"",
+    "clean": "rm -rf dist",
+    "prepack": "npm run build"
+  },
+  "main": "./src/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./src/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "package.json"
+  ],
+  "dependencies": {
+    "@561-group/memetic-processing-unit": "0.1.0"
+  },
+  "devDependencies": {
+    "@561-group/memetic-processing-unit": "0.1.0",
+    "@lenticule-science/metrologic": "0.3.0"
+  },
+  "sideEffects": false
+}

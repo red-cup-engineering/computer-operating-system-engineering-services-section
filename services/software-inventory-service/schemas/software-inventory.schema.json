@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:red-cup-engineering:schema:software-inventory:1",
+  "title": "Software inventory",
+  "type": "object",
+  "required": ["kind", "version", "schema", "root", "rootBinding", "observation", "defects", "catalog", "graph", "chart", "commitment", "addressedBundle"],
+  "properties": {
+    "kind": { "const": "SoftwareInventory" },
+    "version": { "const": 1 },
+    "schema": { "const": "urn:red-cup-engineering:schema:software-inventory:1" },
+    "root": { "type": "string", "minLength": 1 },
+    "rootBinding": { "type": "object" },
+    "observation": { "type": "object" },
+    "defects": { "type": "array", "items": { "type": "object" } },
+    "catalog": { "type": "array", "items": { "type": "object" } },
+    "graph": {
+      "type": "object",
+      "required": ["nodes", "edges"],
+      "properties": {
+        "nodes": { "type": "array", "items": { "type": "object" } },
+        "edges": { "type": "array", "items": { "type": "object" } }
+      },
+      "additionalProperties": false
+    },
+    "chart": {
+      "type": "object",
+      "required": ["mediaType", "bytes", "niUri", "text"],
+      "properties": {
+        "mediaType": { "const": "text/vnd.graphviz" },
+        "bytes": { "type": "integer", "minimum": 0 },
+        "niUri": { "type": "string", "pattern": "^ni:///sha-256;" },
+        "text": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "commitment": { "type": "object" },
+    "addressedBundle": {
+      "type": "object",
+      "required": ["token", "carrierNiUri", "mediaType", "bytes", "semanticType"],
+      "properties": {
+        "token": { "type": "string", "pattern": "^ni:///sha-256;" },
+        "carrierNiUri": { "type": "string", "pattern": "^ni:///sha-256;" },
+        "mediaType": { "const": "application/sen+cbor" },
+        "bytes": {
+          "type": "object",
+          "required": ["base64"],
+          "properties": { "base64": { "type": "string" } },
+          "additionalProperties": false
+        },
+        "semanticType": { "type": "array" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

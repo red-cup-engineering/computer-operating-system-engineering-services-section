@@ -1,0 +1,38 @@
+{
+  "name": "@red-cup-engineering/filepath-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Normalizes and confines filesystem addresses and searches filepath spellings or literal text beneath an explicit root.",
+  "exports": {
+    ".": "./src/filepath-services.mjs",
+    "./search-filepath": "./scripts/search-filepath.mjs",
+    "./admit-relative-posix-filepath": "./scripts/admit-relative-posix-filepath.mjs",
+    "./project-npm-package-manifest-path": "./scripts/project-npm-package-manifest-path.mjs",
+    "./select-npm-package-manifest-paths": "./scripts/select-npm-package-manifest-paths.mjs",
+    "./prioritize-posix-paths": "./scripts/prioritize-posix-paths.mjs",
+    "./walk-posix-paths": "./scripts/walk-posix-paths.mjs",
+    "./list-directory-entries": "./scripts/list-directory-entries.mjs",
+    "./merge-directory-contents": "./scripts/merge-directory-contents.mjs",
+    "./relocate-directory": "./scripts/relocate-directory.mjs",
+    "./find-ancestor-marker-file": "./scripts/find-ancestor-marker-file.mjs",
+    "./project-filepath-basename": "./scripts/project-filepath-basename.mjs",
+    "./project-filepath-directory": "./scripts/project-filepath-directory.mjs"
+  },
+  "bin": {
+    "search-filepath": "./scripts/search-filepath.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/javascript-node-services-section": "0.3.0"
+  },
+  "files": [
+    "src",
+    "scripts"
+  ],
+  "scripts": {
+    "check": "node --check src/*.mjs && node --check scripts/*.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@red-cup-engineering/computer-operating-system-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Operating-system effects over this repo's own machines: reads and seeds host state that no single sub-service under this section already owns.",
+  "exports": {
+    "./seed-systemd-services": "./scripts/seed-systemd-services.mjs",
+    "./host-resource-execution": "./src/host-resource-execution.mjs",
+    "./host-resource-custody": "./src/host-resource-custody.mjs",
+    "./linux-effect-containment": "./src/linux-effect-containment.mjs"
+  },
+  "bin": {
+    "seed-systemd-services": "./scripts/seed-systemd-services.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/eavt": "workspace:*",
+    "@red-cup-engineering/systemd-unit-inventory-observation-service": "workspace:*"
+  }
+}

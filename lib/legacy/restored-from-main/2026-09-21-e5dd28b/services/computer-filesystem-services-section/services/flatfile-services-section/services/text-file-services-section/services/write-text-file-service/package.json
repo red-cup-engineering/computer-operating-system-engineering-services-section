@@ -1,0 +1,29 @@
+{
+  "name": "@red-cup-engineering/write-text-file-service",
+  "version": "0.2.0",
+  "description": "Writes one explicit text-file content projection and returns a filesystem receipt.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/write-text-file.mjs",
+  "bin": {
+    "write-text-file": "./scripts/write-text-file.mjs"
+  },
+  "files": [
+    "scripts",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-data-engine": "0.11.2",
+    "@red-cup-engineering/file-services": "0.2.1",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0"
+  },
+  "scripts": {
+    "check": "node --check scripts/write-text-file.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

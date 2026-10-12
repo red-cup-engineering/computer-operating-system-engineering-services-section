@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://active.development.561.group/lib/meme/schema/posit-presheaf.schema.json",
+  "title": "posit-presheaf",
+  "description": "PositPresheaf: the valued presheaf that posit builds — the classical-spacetime structure. Each cell now bears a definite charge (seeded at absurd / knowledge-least ⊥); the superposition has collapsed. Posit is collapsing: the quantum → classical transition in one generator.",
+  "type": "object",
+  "properties": {
+    "fiber": {
+      "type": "object",
+      "description": "The base fiber: cell-set, base category, and entity-set — the structural scaffold predicate built.",
+      "properties": {
+        "cell-set": {
+          "type": "object",
+          "properties": {
+            "entity-set": { "type": "object", "properties": { "entities": { "type": "array" } }, "required": ["entities"] },
+            "predicate-set": { "type": "object", "properties": { "predicates": { "type": "array" } }, "required": ["predicates"] }
+          },
+          "required": ["entity-set", "predicate-set"]
+        },
+        "base": { "type": "object", "description": "The base category with its morphism slots." },
+        "entity-set": { "type": "object", "properties": { "entities": { "type": "array" } }, "required": ["entities"] }
+      },
+      "required": ["cell-set", "base", "entity-set"]
+    },
+    "base": {
+      "type": "object",
+      "description": "The base category: objects and its four morphism slots (specialization, converse, subject-projection, object-projection)."
+    },
+    "entity-set": {
+      "type": "object",
+      "properties": { "entities": { "type": "array" } },
+      "required": ["entities"],
+      "description": "The entity set E for the whole presheaf."
+    },
+    "fibers": {
+      "type": "array",
+      "items": { "$ref": "./fiber-algebra.schema.json" },
+      "description": "One FiberAlgebra per predicate — the charged stalks, each seeded at absurd."
+    }
+  },
+  "required": ["fiber", "base", "entity-set", "fibers"],
+  "additionalProperties": false
+}

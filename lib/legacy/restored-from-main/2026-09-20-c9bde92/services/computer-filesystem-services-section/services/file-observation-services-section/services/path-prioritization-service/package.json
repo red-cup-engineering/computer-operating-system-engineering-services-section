@@ -1,0 +1,24 @@
+{
+  "name": "@red-cup-engineering/path-prioritization-service",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Orders explicit root-relative POSIX paths by explicit path-prefix priority without observing a filesystem.",
+  "exports": {
+    ".": "./src/prioritize-posix-paths.mjs",
+    "./prioritize-posix-paths": "./scripts/prioritize-posix-paths.mjs"
+  },
+  "bin": {
+    "prioritize-posix-paths": "./scripts/prioritize-posix-paths.mjs"
+  },
+  "files": [
+    "src",
+    "scripts"
+  ],
+  "scripts": {
+    "check": "node --check src/*.mjs && node --check scripts/*.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

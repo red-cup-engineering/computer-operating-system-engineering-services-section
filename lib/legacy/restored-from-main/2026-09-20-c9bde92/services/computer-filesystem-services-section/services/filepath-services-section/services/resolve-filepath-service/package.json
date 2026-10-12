@@ -1,0 +1,28 @@
+{
+  "name": "@red-cup-engineering/resolve-filepath-service",
+  "version": "0.1.1",
+  "description": "Resolves an explicit nonempty sequence of filepath segments to one absolute filepath without observing the filesystem.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/resolve-filepath.mjs",
+  "bin": {
+    "resolve-filepath": "./scripts/resolve-filepath.mjs"
+  },
+  "files": [
+    "scripts",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/javascript-node-services-section": "0.3.0",
+    "@red-cup-engineering/write-javascript-node-standard-output-text-service": "0.2.1"
+  },
+  "scripts": {
+    "check": "node --check scripts/resolve-filepath.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

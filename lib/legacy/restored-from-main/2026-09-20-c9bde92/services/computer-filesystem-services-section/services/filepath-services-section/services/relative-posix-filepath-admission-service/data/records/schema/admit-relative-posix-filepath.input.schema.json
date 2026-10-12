@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "admitRelativePosixFilepathInput",
+  "type": "string",
+  "description": "A candidate root-relative filepath."
+}

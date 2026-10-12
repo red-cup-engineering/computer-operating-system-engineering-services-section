@@ -1,0 +1,59 @@
+{
+  "name": "@561-group/meme",
+  "version": "0.0.3",
+  "type": "module",
+  "description": "Provides typing for Memes and related classes and functions.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emsenn/561-group.git",
+    "directory": "lib/meme"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "prepack": "npm run build"
+  },
+  "main": "./src/index.mjs",
+  "exports": {
+    "./primitives": {
+      "import": "./src/primitives.mjs"
+    },
+    "./cell": {
+      "import": "./src/cell.mjs"
+    },
+    "./charge": {
+      "import": "./src/charge.mjs"
+    },
+    "./meme": {
+      "import": "./src/meme.mjs"
+    },
+    "./fiber": {
+      "import": "./src/fiber.mjs"
+    },
+    "./presheaf": {
+      "import": "./src/presheaf.mjs"
+    },
+    "./morphisms": {
+      "import": "./src/morphisms.mjs"
+    },
+    "./schema/utterance": "./schema/utterance.schema.json",
+    "./schema/bit": "./schema/bit.schema.json",
+    "./schema/cell": "./schema/cell.schema.json",
+    "./schema/charge": "./schema/charge.schema.json",
+    "./schema/meme": "./schema/meme.schema.json",
+    "./schema/fiber-algebra": "./schema/fiber-algebra.schema.json",
+    "./schema/posit-presheaf": "./schema/posit-presheaf.schema.json",
+    "./schema/sheaf": "./schema/sheaf.schema.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "schema",
+    "docs",
+    "README.md",
+    "package.json"
+  ],
+  "sideEffects": false
+}

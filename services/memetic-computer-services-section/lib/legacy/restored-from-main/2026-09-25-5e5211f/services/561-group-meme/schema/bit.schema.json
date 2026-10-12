@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://active.development.561.group/lib/meme/schema/bit.schema.json",
+  "title": "bit",
+  "description": "The unit of informational-spacetime: a carrier (utterance) paired with two witness slots. The four charge phases are the bit's possible states, read from slot occupancy: absurd [F,F] both empty; potential [T,F] token slot filled; active [F,T] claim slot filled; stable [T,T] both filled. Produced by articulate; the freshly marked bit has both slots empty (absurd).",
+  "type": "object",
+  "properties": {
+    "carrier": {
+      "$ref": "./utterance.schema.json",
+      "description": "The utterance this bit is a distinction of."
+    },
+    "slots": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "array", "description": "Token-slot witnesses. Empty = no positive mark." },
+        { "type": "array", "description": "Claim-slot witnesses. Empty = no negative mark." }
+      ],
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "The two witness slots [token-slot, claim-slot]. Slot occupancy determines the charge phase."
+    }
+  },
+  "required": ["carrier", "slots"],
+  "additionalProperties": false
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/is-absolute-filepath-service",
+  "version": "0.1.0",
+  "description": "Reports whether one filepath spelling is absolute on this platform, without observing the filesystem.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/is-absolute-filepath.mjs",
+  "bin": {
+    "is-absolute-filepath": "scripts/is-absolute-filepath.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/is-absolute-filepath.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

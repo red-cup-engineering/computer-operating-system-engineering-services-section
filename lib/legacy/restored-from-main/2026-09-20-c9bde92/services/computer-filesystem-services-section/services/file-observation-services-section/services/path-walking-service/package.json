@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/path-walking-service",
+  "version": "0.5.0",
+  "type": "module",
+  "description": "Walks the real filesystem under one explicit root and reports the files, symlinks, and directories it finds in deterministic order.",
+  "exports": {
+    ".": "./src/walk-posix-paths.mjs",
+    "./walk-posix-paths": "./scripts/walk-posix-paths.mjs"
+  },
+  "bin": {
+    "walk-posix-paths": "./scripts/walk-posix-paths.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/walk-posix-paths.mjs && node --check scripts/walk-posix-paths.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "files": [
+    "scripts",
+    "src"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/javascript-file-main-guard-service": "0.1.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

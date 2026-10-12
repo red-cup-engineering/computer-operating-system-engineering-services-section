@@ -1,0 +1,55 @@
+{
+  "name": "@561-group/horsetail-fennel",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Horsetail \u2014 the 561-group computer's native language, a paraconsistent settling Lisp where `eval` IS `settle` and top (\u22a4) is a bindable HELD value. Recovered from the last computer/ source tree before its 2026-06-06 archival (git cd6b4e97704), where it had been cut from @561-group/computer's later 0.0.1->0.0.2 scope reduction (see that package's README 'coherent subset' policy) and left as a documented stub in @red-cup-engineering/tsander's horsetail-hook.mjs (`@561-group/computer/horsetail does not exist`). Recovered here as its own package rather than re-inserted into @561-group/computer, per that package's stated policy of shipping only the subset exercised by active consumers. Ships horsetail itself plus the minimal principal/distribution/process-runtime/typed-filepath-addressing-system slices horsetail's evaluator and its `as`-form authority test depend on at runtime (support tiles, not full re-instatements of those larger, still-unrecovered subsystems).",
+  "keywords": [
+    "horsetail",
+    "lisp",
+    "paraconsistent",
+    "bilattice",
+    "belnap",
+    "settling",
+    "561-group"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emsenn/bare-cedar-fog.git",
+    "directory": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/services/561-group-horsetail"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": "./horsetail/src/horsetail.mjs",
+    "./pattern": "./horsetail/src/pattern.mjs",
+    "./arith": "./horsetail/src/arith.mjs",
+    "./strings": "./horsetail/src/strings.mjs",
+    "./seq": "./horsetail/src/seq.mjs",
+    "./principal": "./principal/src/principal-barrel.mjs",
+    "./principal/tool": "./principal/src/principal.mjs",
+    "./process-runtime/allocation": "./process-runtime/src/allocation.mjs",
+    "./typed-filepath-addressing-system/addressing": "./typed-filepath-addressing-system/addressing/scripts/address.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "horsetail/src",
+    "horsetail/README.md",
+    "principal/src",
+    "principal/README.md",
+    "process-runtime/src/allocation.mjs",
+    "process-runtime/src/process.mjs",
+    "process-runtime/src/judgment.mjs",
+    "typed-filepath-addressing-system/addressing/scripts/address.mjs",
+    "typed-filepath-addressing-system/addressing/scripts/access.mjs",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "test": "node horsetail/tests/run.mjs && node horsetail/tests/parity.mjs && node principal/tests/principal.test.mjs"
+  },
+  "dependencies": {
+    "@561-group/computer": "^0.0.4",
+    "@lenticule-science/metrologic": "0.1.0"
+  }
+}

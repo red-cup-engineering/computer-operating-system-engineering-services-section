@@ -1,0 +1,43 @@
+{
+  "name": "@561-group/proof-pathing",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Proof-pathing: the Meme-structure → typed-path fold, read through Curry-Howard-Lambek. A path is a PROOF — the composite of predicate-category generator morphisms (specialization, converse, subject-/object-projection) from a foundational root to a target, driven to the least fixed point of the path-composition monad (the MPU's saturate/μ). The accumulated generator sequence IS the proof term; rendered to a typed POSIX path (root/<morphism>/library/<term>/…), the term is its own collision-free index (Yoneda), and walking the path re-checks the proof.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emsenn/561-group.git",
+    "directory": "lib/proof-pathing"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "test": "node --test \"src/**/*.test.ts\"",
+    "check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "prepack": "npm run build"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ],
+  "dependencies": {
+    "@561-group/meme": "0.0.3",
+    "@561-group/memetic-processing-unit": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  },
+  "sideEffects": false
+}

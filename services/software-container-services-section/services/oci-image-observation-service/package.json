@@ -1,0 +1,29 @@
+{
+  "name": "@red-cup-engineering/oci-image-observation-service",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Observe immutable OCI images through bounded registry reads and whiteout-aware in-memory filesystem replay.",
+  "license": "MIT",
+  "exports": "./src/observe-oci-image.mjs",
+  "bin": {
+    "observe-oci-image": "./src/cli.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/javascript-node-services-section": "workspace:*",
+    "@red-cup-engineering/json-services-section": "workspace:*",
+    "@red-cup-engineering/uri-services-section": "workspace:*"
+  },
+  "files": [
+    "README.md",
+    "src"
+  ],
+  "scripts": {
+    "check": "node --check src/observe-oci-image.mjs && node --check src/cli.mjs && node --check test/*.test.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "sideEffects": false
+}

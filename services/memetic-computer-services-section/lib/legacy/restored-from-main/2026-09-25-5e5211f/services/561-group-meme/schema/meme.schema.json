@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://active.development.561.group/lib/meme/schema/meme.schema.json",
+  "title": "meme",
+  "description": "The irreducible thing-with-evidence: a cell (relational identity — what the meme is about) paired with its charge (four-valued word — what is said, and how strongly). The tail of the descent articulate → predicate → posit → settle. The unit the Memetic Processing Unit processes and the Memetic Memory Unit stores.",
+  "type": "object",
+  "properties": {
+    "cell": { "$ref": "./cell.schema.json" },
+    "charge": { "$ref": "./charge.schema.json" }
+  },
+  "required": ["cell", "charge"],
+  "additionalProperties": false
+}
