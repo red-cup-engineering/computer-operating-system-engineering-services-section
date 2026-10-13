@@ -5,7 +5,7 @@ import {join,dirname,relative,resolve} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {fixture} from './fixtures/portable-source-fixture.mjs';
-import {assemblePortableRuntime} from '../scripts/assemble-portable-runtime.mjs';
+import {assemblePortableRuntime,runPortableAssemblyCli} from '../scripts/assemble-portable-runtime.mjs';
 const hash=b=>createHash('sha256').update(b).digest('hex');
 const git=(root,...args)=>execFileSync('git',['-c','user.name=Fixture','-c','user.email=fixture@example.invalid','-C',root,...args],{encoding:'utf8',env:{...process.env,GIT_CONFIG_GLOBAL:'/dev/null',GIT_CONFIG_NOSYSTEM:'1'}}).trim();
 async function composed(t,{bodyMutation=false,producerFailure=false}={}){
@@ -46,3 +46,13 @@ test('actual Code command and compiler publish shared software without target en
 });
 test('actual producer failure preserves destination absence and removes owned staging',async t=>{const f=await composed(t,{producerFailure:true});await assert.rejects(assemblePortableRuntime(f),/exited 7/);await assert.rejects(lstat(f.output),{code:'ENOENT'});assert.equal((await readdir(f.outer)).filter(x=>x.startsWith('.portable-')).length,0);});
 test('compiled but unreceived runtime body cannot reach destination',async t=>{const f=await composed(t,{bodyMutation:true});await assert.rejects(assemblePortableRuntime(f),/portable payload differs from committed source/);await assert.rejects(lstat(f.output),{code:'ENOENT'});assert.equal((await readdir(f.outer)).filter(x=>x.startsWith('.portable-')).length,0);});
+
+test('target CLI requires both independently explicit source identities and original receipts',async()=>{
+ await assert.rejects(runPortableAssemblyCli(['target','--assembly','unused']),/explicit phase arguments/);
+ await assert.rejects(runPortableAssemblyCli(['target','--entry','index.mjs']),/unknown or repeated/);
+ await assert.rejects(runPortableAssemblyCli(['target','--software','first','--software','second']),/unknown or repeated/);
+});
+test('shared CLI retains explicit entries and refuses target-only arguments',async()=>{
+ await assert.rejects(runPortableAssemblyCli(['--selection','unused','--target-commit','0'.repeat(40)]),/unknown or repeated/);
+ await assert.rejects(runPortableAssemblyCli(['--selection','unused','--snapshot','unused','--output']),/missing portable assembly argument/);
+});

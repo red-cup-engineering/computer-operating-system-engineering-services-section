@@ -65,13 +65,24 @@ export async function assembleTargetEnvelope({selection,snapshot,target,software
   }finally{await rm(stage,{recursive:true,force:true});}
 }
 
-if(isCliEntry(import.meta.url)){
-  const values={},entries=[],args=process.argv.slice(2);
+export async function runPortableAssemblyCli(args){
+  const values={},entries=[],targetPhase=args[0]==='target';
+  if(targetPhase)args=args.slice(1);else args=[...args];
+  const allowed=targetPhase?['--assembly','--software','--snapshot','--target-snapshot','--target-repository','--target-commit','--output']:['--selection','--snapshot','--output'];
   while(args.length){const key=args.shift(),value=args.shift();if(!value)throw new Error('missing portable assembly argument');
-    if(key==='--entry')entries.push(value);
-    else if(['--selection','--snapshot','--output'].includes(key)&&values[key]===undefined)values[key]=value;
+    if(key==='--entry'&&!targetPhase)entries.push(value);
+    else if(allowed.includes(key)&&values[key]===undefined)values[key]=value;
     else throw new Error('unknown or repeated portable assembly argument');}
-  if(Object.keys(values).length!==3)throw new Error('portable assembly needs selection, snapshot and output');
+  if(Object.keys(values).length!==allowed.length)throw new Error('portable assembly lacks its explicit phase arguments');
+  if(targetPhase){
+    const assembly=JSON.parse(await readFile(values['--assembly'],'utf8'));
+    const software=JSON.parse(await readFile(values['--software'],'utf8'));
+    return assembleTargetEnvelope({selection:assembly.selection,snapshot:values['--snapshot'],
+      target:{snapshot:values['--target-snapshot'],repository:values['--target-repository'],commit:values['--target-commit']},
+      software,compilation:assembly.compilation,command:assembly.command,output:values['--output']});
+  }
   const selection=JSON.parse(await readFile(values['--selection'],'utf8'));
-  process.stdout.write(JSON.stringify(await assemblePortableRuntime({selection,snapshot:values['--snapshot'],output:values['--output'],entries}))+'\n');
+  return assemblePortableRuntime({selection,snapshot:values['--snapshot'],output:values['--output'],entries});
 }
+
+if(isCliEntry(import.meta.url))process.stdout.write(JSON.stringify(await runPortableAssemblyCli(process.argv.slice(2)))+'\n');
