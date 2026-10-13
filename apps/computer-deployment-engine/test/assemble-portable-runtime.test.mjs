@@ -35,12 +35,14 @@ async function composed(t,{bodyMutation=false,producerFailure=false}={}){
  await writeFile(executable,'#!'+process.execPath+'\n'+`const fs=require('node:fs');const out=process.argv.at(-1);fs.cpSync(${JSON.stringify(payload)},out,{recursive:true,verbatimSymlinks:true});${producerFailure?'process.exit(7);':''}\n`);await chmod(executable,0o755);f.selection.executable=executable;
  const output=join(f.outer,'received');return {...f,output,entries:['index.mjs']};
 }
-test('actual Code command and compiler compose fixture readers and portable envelope before publication',async t=>{
- const f=await composed(t),result=await assemblePortableRuntime(f);assert.equal(result.closure,f.output);assert.equal(result.corpus,null);
- const compilation=JSON.parse(await readFile(join(f.output,'.metadata/source-compilation.json')));assert.equal(compilation.staticBindingsCompiled,true);assert.equal(compilation.applicationExecuted,false);assert.equal(compilation.scope,'packed-selected-packages');
+test('actual Code command and compiler publish shared software without target envelope',async t=>{
+ const f=await composed(t),result=await assemblePortableRuntime(f);assert.equal(result.closure,f.output);
+ assert.equal(result.compilation.staticBindingsCompiled,true);assert.equal(result.compilation.applicationExecuted,false);assert.equal(result.compilation.scope,'packed-selected-packages');
+ for(const name of ['.metadata','.controller','deployment','.storage-systemd'])await assert.rejects(lstat(join(f.output,name)),{code:'ENOENT'});
+ assert.equal(await realpath(join(f.output,'app/feltos.mjs')),await realpath(join(f.output,'node_modules/@red-cup-engineering/feltos/feltos.mjs')));
  assert.equal((await readdir(f.outer)).filter(x=>x.startsWith('.portable-')).length,0);
- const command=JSON.parse(await readFile(join(f.output,'.metadata/workspace-command.json')));assert.match(command.produced.directory,/\.portable-.*\/runtime$/);await assert.rejects(lstat(command.produced.directory),{code:'ENOENT'});assert.equal(result.command.produced.directory,command.produced.directory);
- const sources=JSON.parse(await readFile(join(f.output,'.metadata/sources.json')));for(const source of sources.packages)assert.ok(!source.installationPath.startsWith('/'));
+ assert.match(result.command.produced.directory,/\.portable-.*\/runtime$/);await assert.rejects(lstat(result.command.produced.directory),{code:'ENOENT'});
+ assert.equal(result.softwareIdentity.commit,f.selection.commit);
 });
 test('actual producer failure preserves destination absence and removes owned staging',async t=>{const f=await composed(t,{producerFailure:true});await assert.rejects(assemblePortableRuntime(f),/exited 7/);await assert.rejects(lstat(f.output),{code:'ENOENT'});assert.equal((await readdir(f.outer)).filter(x=>x.startsWith('.portable-')).length,0);});
 test('compiled but unreceived runtime body cannot reach destination',async t=>{const f=await composed(t,{bodyMutation:true});await assert.rejects(assemblePortableRuntime(f),/portable payload differs from committed source/);await assert.rejects(lstat(f.output),{code:'ENOENT'});assert.equal((await readdir(f.outer)).filter(x=>x.startsWith('.portable-')).length,0);});

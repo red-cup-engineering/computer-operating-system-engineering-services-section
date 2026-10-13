@@ -1,15 +1,15 @@
-import {readFile,mkdtemp,lstat,realpath,rename,rm} from 'node:fs/promises';
+import {readFile,mkdtemp,lstat,realpath,rename,rm,mkdir} from 'node:fs/promises';
 import {resolve,join,dirname,relative,isAbsolute} from 'node:path';
 import {runWorkspaceSelection,verifyWorkspaceSelection} from '@red-cup-engineering/node-runtime-release-promotion-service/install-workspace-selection';
 import {compileNodeRuntime} from '@red-cup-engineering/node-runtime-release-promotion-service/compile-node-runtime';
-import {confinePortableRuntime} from '@red-cup-engineering/guix-machine-release-service/scripts/portable-runtime.mjs';
-import {envelopeWorkspaceRuntime} from '@red-cup-engineering/guix-machine-release-service/scripts/envelope-workspace-runtime.mjs';
+import {confinePortableRuntime,bindPortableDriver} from '@red-cup-engineering/guix-machine-release-service/scripts/portable-runtime.mjs';
+import {envelopeWorkspaceRuntime,receiveWorkspaceRuntime} from '@red-cup-engineering/guix-machine-release-service/scripts/envelope-workspace-runtime.mjs';
 import {assembleWorkspaceCorpus} from '@red-cup-engineering/guix-machine-release-service/scripts/assemble-workspace-corpus.mjs';
 import {isCliEntry} from '@red-cup-engineering/guix-machine-release-service/scripts/cli-entry.mjs';
 
 /** Compose the existing selected deployment command, source compiler and
- * receiver envelope under the caller's existing build lease. The only published
- * output is the complete fresh tree; Guix sealing/receiving stays with its owner.
+ * shared software under the caller's existing build lease. Target declarations
+ * and corpus policy are received later against this identical software output.
  */
 export async function assemblePortableRuntime({selection,snapshot,output,entries}){
   const workspace=await verifyWorkspaceSelection(selection);
@@ -26,14 +26,42 @@ export async function assemblePortableRuntime({selection,snapshot,output,entries
     const command=await runWorkspaceSelection({receipt:selection,deployOutput:runtime,arguments:['--filter',manifest.name,'--config.ignore-scripts=true','--config.inject-workspace-packages=true','deploy','--prod',runtime]});
     await confinePortableRuntime(runtime);
     const compilation=await compileNodeRuntime({selection,runtime,entries:entries.map(path=>join(runtime,path))});
-    const receipt=await envelopeWorkspaceRuntime({selection,snapshot,runtime,compilation,command});
-    const corpus=await assembleWorkspaceCorpus({selection,snapshot,runtime,sourceWork:join(stage,'lspace-sources')});
+    const received=await receiveWorkspaceRuntime({selection,snapshot,runtime,compilation,command});
+    await bindPortableDriver(runtime,received.sources);
     await confinePortableRuntime(runtime);
     await verifyWorkspaceSelection(selection);
     // Caller lease also owns this destination. No existing tree is replaced.
     try{await lstat(destination);throw new Error('portable output appeared during assembly');}catch(error){if(error.code!=='ENOENT')throw error;}
     await rename(runtime,destination);
-    return {...receipt,closure:destination,command,corpus};
+    return {closure:destination,selection,compilation,command,softwareIdentity:received.projection.softwareIdentity,...received.payload};
+  }finally{await rm(stage,{recursive:true,force:true});}
+}
+
+// The existing Guix build returns SOFTWARE for node-runtime-release. This phase
+// adds only the separately authenticated target's receiver input; it never
+// installs dependencies again or modifies that shared immutable output.
+export async function assembleTargetEnvelope({selection,snapshot,target,software,compilation,command,output}){
+  if(!software||!/^\/gnu\/store\/[^/]+$/u.test(software.storePath??'')||
+      !/^[a-f0-9]{64}$/u.test(software.narSha256??'')||typeof software.root!=='string'||!software.root)
+    throw new Error('target envelope needs the exact Guix software build receipt');
+  const runtime=await realpath(join(software.storePath,'share/runtime'));
+  if(!/^\/gnu\/store\/[^/]+$/u.test(runtime))throw new Error('shared runtime is not an immutable store-held input');
+  const destination=resolve(output),parent=dirname(destination);
+  if(await realpath(parent)!==parent)throw new Error('target output parent is redirected');
+  if(target===undefined)throw new Error('target envelope needs its independent declaration identity');
+  for(const source of [selection.workspace,runtime,resolve(target.snapshot)]){
+    const offset=relative(source,destination);
+    if(!isAbsolute(offset)&&offset!=='..'&&!offset.startsWith('../'))throw new Error('target output overlaps an admitted input');
+  }
+  try{await lstat(destination);throw new Error('target output already exists');}catch(error){if(error.code!=='ENOENT')throw error;}
+  const stage=await mkdtemp(join(parent,'.receiver-')),envelope=join(stage,'envelope');
+  await mkdir(envelope);
+  try{
+    const receipt=await envelopeWorkspaceRuntime({selection,snapshot,target,runtime,envelope,software,compilation,command});
+    const corpus=await assembleWorkspaceCorpus({selection,snapshot,target,runtime:envelope,softwareRoot:runtime,sourceWork:join(stage,'lspace-sources')});
+    await confinePortableRuntime(envelope);await verifyWorkspaceSelection(selection);
+    try{await lstat(destination);throw new Error('target output appeared during assembly');}catch(error){if(error.code!=='ENOENT')throw error;}
+    await rename(envelope,destination);return {...receipt,closure:destination,corpus};
   }finally{await rm(stage,{recursive:true,force:true});}
 }
 
