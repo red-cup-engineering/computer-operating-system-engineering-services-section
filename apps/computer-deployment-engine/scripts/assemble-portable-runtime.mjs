@@ -11,7 +11,7 @@ import {isCliEntry} from '@red-cup-engineering/guix-machine-release-service/scri
  * shared software under the caller's existing build lease. Target declarations
  * and corpus policy are received later against this identical software output.
  */
-export async function assemblePortableRuntime({selection,snapshot,output,entries}){
+export async function assemblePortableRuntime({selection,snapshot,output,entries,importer}){
   const workspace=await verifyWorkspaceSelection(selection);
   const destination=resolve(output),parent=dirname(destination),offset=relative(workspace,destination);
   if(!isAbsolute(offset)&&offset!=='..'&&!offset.startsWith('../'))throw new Error('portable output must be outside the source checkout');
@@ -19,8 +19,8 @@ export async function assemblePortableRuntime({selection,snapshot,output,entries
   try{await lstat(destination);throw new Error('portable output already exists');}catch(error){if(error.code!=='ENOENT')throw error;}
   if(!Array.isArray(entries)||!entries.length||entries.some(path=>typeof path!=='string'||!path||isAbsolute(path)||/[\\\0]/u.test(path)||path.split('/').some(p=>!p||p==='.'||p==='..')))
     throw new Error('portable compiler entries must be explicit canonical relative paths');
-  if(!Array.isArray(selection.roots)||selection.roots.length!==1||!selection.importerIds.includes(selection.roots[0]))throw new Error('portable software needs one explicitly selected entry owner');
-  const manifest=JSON.parse(await readFile(join(workspace,selection.roots[0],'package.json'),'utf8'));
+  if(!Array.isArray(selection.roots)||!selection.roots.includes(importer)||!selection.importerIds.includes(importer))throw new Error('portable software needs its explicitly selected entry owner');
+  const manifest=JSON.parse(await readFile(join(workspace,importer,'package.json'),'utf8'));
   if(typeof manifest.name!=='string'||!manifest.name)throw new Error('portable entry owner needs its selected package name');
   const stage=await mkdtemp(join(parent,'.portable-')),runtime=join(stage,'runtime');
   try{
@@ -69,7 +69,7 @@ export async function assembleTargetEnvelope({selection,snapshot,target,software
 export async function runPortableAssemblyCli(args){
   const values={},entries=[],targetPhase=args[0]==='target';
   if(targetPhase)args=args.slice(1);else args=[...args];
-  const allowed=targetPhase?['--assembly','--software','--snapshot','--target-snapshot','--target-repository','--target-commit','--output']:['--selection','--snapshot','--output'];
+  const allowed=targetPhase?['--assembly','--software','--snapshot','--target-snapshot','--target-repository','--target-commit','--output']:['--selection','--snapshot','--output','--importer'];
   while(args.length){const key=args.shift(),value=args.shift();if(!value)throw new Error('missing portable assembly argument');
     if(key==='--entry'&&!targetPhase)entries.push(value);
     else if(allowed.includes(key)&&values[key]===undefined)values[key]=value;
@@ -83,7 +83,7 @@ export async function runPortableAssemblyCli(args){
       software,compilation:assembly.compilation,command:assembly.command,output:values['--output']});
   }
   const selection=JSON.parse(await readFile(values['--selection'],'utf8'));
-  return assemblePortableRuntime({selection,snapshot:values['--snapshot'],output:values['--output'],entries});
+  return assemblePortableRuntime({selection,snapshot:values['--snapshot'],output:values['--output'],entries,importer:values['--importer']});
 }
 
 if(isCliEntry(import.meta.url))process.stdout.write(JSON.stringify(await runPortableAssemblyCli(process.argv.slice(2)))+'\n');
