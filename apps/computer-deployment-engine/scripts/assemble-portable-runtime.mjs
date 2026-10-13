@@ -11,7 +11,7 @@ import {isCliEntry} from '@red-cup-engineering/guix-machine-release-service/scri
  * shared software under the caller's existing build lease. Target declarations
  * and corpus policy are received later against this identical software output.
  */
-export async function assemblePortableRuntime({selection,snapshot,output,entries,importer}){
+export async function assemblePortableRuntime({selection,snapshot,output,entries,importer,generation}){
   const workspace=await verifyWorkspaceSelection(selection);
   const destination=resolve(output),parent=dirname(destination),offset=relative(workspace,destination);
   if(!isAbsolute(offset)&&offset!=='..'&&!offset.startsWith('../'))throw new Error('portable output must be outside the source checkout');
@@ -27,21 +27,21 @@ export async function assemblePortableRuntime({selection,snapshot,output,entries
     const command=await runWorkspaceSelection({receipt:selection,deployOutput:runtime,deployImporter:importer,arguments:['--filter',manifest.name,'--config.ignore-scripts=true','--config.inject-workspace-packages=true','deploy','--prod',runtime]});
     await confinePortableRuntime(runtime);
     const compilation=await compileNodeRuntime({selection,runtime,entries:entries.map(path=>join(runtime,path))});
-    const received=await receiveWorkspaceRuntime({selection,snapshot,runtime,compilation,command});
+    const received=await receiveWorkspaceRuntime({selection,snapshot,runtime,compilation,command,generation});
     await bindPortableDriver(runtime,received.sources);
     await confinePortableRuntime(runtime);
     await verifyWorkspaceSelection(selection);
     // Caller lease also owns this destination. No existing tree is replaced.
     try{await lstat(destination);throw new Error('portable output appeared during assembly');}catch(error){if(error.code!=='ENOENT')throw error;}
     await rename(runtime,destination);
-    return {closure:destination,selection,compilation,command,softwareIdentity:received.projection.softwareIdentity,...received.payload};
+    return {closure:destination,selection,compilation,command,generation,softwareIdentity:received.projection.softwareIdentity,...received.payload};
   }finally{await rm(stage,{recursive:true,force:true});}
 }
 
 // The existing Guix build returns SOFTWARE for node-runtime-release. This phase
 // adds only the separately authenticated target's receiver input; it never
 // installs dependencies again or modifies that shared immutable output.
-export async function assembleTargetEnvelope({selection,snapshot,target,software,compilation,command,output}){
+export async function assembleTargetEnvelope({selection,snapshot,target,software,compilation,command,generation,output}){
   if(!software||!/^\/gnu\/store\/[^/]+$/u.test(software.storePath??'')||
       !/^[a-f0-9]{64}$/u.test(software.narSha256??'')||typeof software.root!=='string'||!software.root)
     throw new Error('target envelope needs the exact Guix software build receipt');
@@ -58,7 +58,7 @@ export async function assembleTargetEnvelope({selection,snapshot,target,software
   const stage=await mkdtemp(join(parent,'.receiver-')),envelope=join(stage,'envelope');
   await mkdir(envelope);
   try{
-    const receipt=await envelopeWorkspaceRuntime({selection,snapshot,target,runtime,envelope,software,compilation,command});
+    const receipt=await envelopeWorkspaceRuntime({selection,snapshot,target,runtime,envelope,software,compilation,command,generation});
     const corpus=await assembleWorkspaceCorpus({selection,snapshot,target,runtime:envelope,softwareRoot:runtime,sourceWork:join(stage,'lspace-sources')});
     await confinePortableRuntime(envelope);await verifyWorkspaceSelection(selection);
     try{await lstat(destination);throw new Error('target output appeared during assembly');}catch(error){if(error.code!=='ENOENT')throw error;}
@@ -69,7 +69,7 @@ export async function assembleTargetEnvelope({selection,snapshot,target,software
 export async function runPortableAssemblyCli(args){
   const values={},entries=[],targetPhase=args[0]==='target';
   if(targetPhase)args=args.slice(1);else args=[...args];
-  const allowed=targetPhase?['--assembly','--software','--snapshot','--target-snapshot','--target-repository','--target-commit','--output']:['--selection','--snapshot','--output','--importer'];
+  const allowed=targetPhase?['--assembly','--software','--snapshot','--target-snapshot','--target-repository','--target-commit','--output']:['--selection','--snapshot','--output','--importer','--generation'];
   while(args.length){const key=args.shift(),value=args.shift();if(!value)throw new Error('missing portable assembly argument');
     if(key==='--entry'&&!targetPhase)entries.push(value);
     else if(allowed.includes(key)&&values[key]===undefined)values[key]=value;
@@ -80,10 +80,10 @@ export async function runPortableAssemblyCli(args){
     const software=JSON.parse(await readFile(values['--software'],'utf8'));
     return assembleTargetEnvelope({selection:assembly.selection,snapshot:values['--snapshot'],
       target:{snapshot:values['--target-snapshot'],repository:values['--target-repository'],commit:values['--target-commit']},
-      software,compilation:assembly.compilation,command:assembly.command,output:values['--output']});
+      software,compilation:assembly.compilation,command:assembly.command,generation:assembly.generation,output:values['--output']});
   }
   const selection=JSON.parse(await readFile(values['--selection'],'utf8'));
-  return assemblePortableRuntime({selection,snapshot:values['--snapshot'],output:values['--output'],entries,importer:values['--importer']});
+  return assemblePortableRuntime({selection,snapshot:values['--snapshot'],output:values['--output'],entries,importer:values['--importer'],generation:JSON.parse(await readFile(values['--generation'],'utf8'))});
 }
 
 if(isCliEntry(import.meta.url))process.stdout.write(JSON.stringify(await runPortableAssemblyCli(process.argv.slice(2)))+'\n');
