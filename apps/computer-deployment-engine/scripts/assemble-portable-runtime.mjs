@@ -24,7 +24,7 @@ export async function assemblePortableRuntime({selection,snapshot,output,entries
   if(typeof manifest.name!=='string'||!manifest.name)throw new Error('portable entry owner needs its selected package name');
   const stage=await mkdtemp(join(parent,'.portable-')),runtime=join(stage,'runtime');
   try{
-    const command=await runWorkspaceSelection({receipt:selection,deployOutput:runtime,arguments:['--filter',manifest.name,'--config.ignore-scripts=true','--config.inject-workspace-packages=true','deploy','--prod',runtime]});
+    const command=await runWorkspaceSelection({receipt:selection,deployOutput:runtime,deployImporter:importer,arguments:['--filter',manifest.name,'--config.ignore-scripts=true','--config.inject-workspace-packages=true','deploy','--prod',runtime]});
     await confinePortableRuntime(runtime);
     const compilation=await compileNodeRuntime({selection,runtime,entries:entries.map(path=>join(runtime,path))});
     const received=await receiveWorkspaceRuntime({selection,snapshot,runtime,compilation,command});
