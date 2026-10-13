@@ -19,8 +19,9 @@ export async function assemblePortableRuntime({selection,snapshot,output,entries
   try{await lstat(destination);throw new Error('portable output already exists');}catch(error){if(error.code!=='ENOENT')throw error;}
   if(!Array.isArray(entries)||!entries.length||entries.some(path=>typeof path!=='string'||!path||isAbsolute(path)||/[\\\0]/u.test(path)||path.split('/').some(p=>!p||p==='.'||p==='..')))
     throw new Error('portable compiler entries must be explicit canonical relative paths');
-  const manifest=JSON.parse(await readFile(join(workspace,'package.json'),'utf8'));
-  if(typeof manifest.name!=='string'||!manifest.name)throw new Error('portable root needs its selected package name');
+  if(!Array.isArray(selection.roots)||selection.roots.length!==1||!selection.importerIds.includes(selection.roots[0]))throw new Error('portable software needs one explicitly selected entry owner');
+  const manifest=JSON.parse(await readFile(join(workspace,selection.roots[0],'package.json'),'utf8'));
+  if(typeof manifest.name!=='string'||!manifest.name)throw new Error('portable entry owner needs its selected package name');
   const stage=await mkdtemp(join(parent,'.portable-')),runtime=join(stage,'runtime');
   try{
     const command=await runWorkspaceSelection({receipt:selection,deployOutput:runtime,arguments:['--filter',manifest.name,'--config.ignore-scripts=true','--config.inject-workspace-packages=true','deploy','--prod',runtime]});
