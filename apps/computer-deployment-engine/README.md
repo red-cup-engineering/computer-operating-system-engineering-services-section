@@ -26,19 +26,22 @@ guix time-machine -C CHANNELS -- repl -- scripts/guix-deployment.scm \
 ```
 
 The `deploy` form takes the same arguments, replacing `RESULT-ROOT` with the
-absolute application profile. `rollback CHANNELS PROFILE` selects the preceding
-native Guix generation and activates its declared services. Prepared runtime
+absolute application profile. `rollback CHANNELS PROFILE [TARGET]` selects the
+preceding native Guix generation and activates its declared services. The existing
+off-host receiver caller supplies `TARGET`, applying the same sealed profile,
+instance and actor-only admission before rollback activation. Prepared runtime
 bytes come from the recursive recorded workspace, frozen root pnpm install,
 actual source generation, and native pnpm packing. No release receipt inputs
 are accepted.
 
-After an authorized existing transport imports the complete Guix closure, the
-same entry can receive an already built output without running application
-fabrication on the target:
+The existing transport imports the complete application closure, the already
+realized pinned Guix profile, and native store files for the driver and channels.
+Run that immutable executable to receive without constructing Guix or the
+application on the target:
 
 ```sh
-guix time-machine -C CHANNELS -- repl -- scripts/guix-deployment.scm \
-  receive CHANNELS STORE PROFILE TARGET
+"$GUIX_PROFILE_STORE/bin/guix" repl -- DRIVER_STORE \
+  receive CHANNELS_STORE STORE PROFILE TARGET
 ```
 
 `TARGET` names the existing `cold-red-gate` or `bare-cedar-fog` target. The
@@ -57,10 +60,12 @@ Receiving uses the same profile lease, baseline admission and activation as
 `deploy`. A native scratch Guix profile roots the imported closure before host
 activation and remains on failure or interruption for recovery. On success the
 application's native profile retains the output and the scratch profile is
-removed. The temporary daemon root also protects the output while that native
-scratch profile is being installed. The receiver still needs its qualified
-pinned Guix toolchain and native profile realization; this interface makes no
-claim that those are already installed.
+removed. Temporary daemon roots protect the output and imported receiving inputs while
+the native scratch roots are installed. The scratch directory also roots the
+Guix profile, driver and channels through failure or interruption. Receiving
+requires the running Guix profile to match the complete authored channel
+name/commit list. The same immutable executable performs package operations
+and lease re-entry; no receiving operation falls back to time-machine.
 
 The bounded initial state conversion uses `deploy ... PROFILE --first-cutover
 WORK`; its historical converter is an exact pinned source declared by the
