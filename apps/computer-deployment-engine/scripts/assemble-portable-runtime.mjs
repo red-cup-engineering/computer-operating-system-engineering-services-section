@@ -2,7 +2,7 @@ import {readFile,mkdtemp,lstat,realpath,rename,rm,mkdir} from 'node:fs/promises'
 import {resolve,join,dirname,relative,isAbsolute} from 'node:path';
 import {runWorkspaceSelection,verifyWorkspaceSelection} from '@red-cup-engineering/node-runtime-release-promotion-service/install-workspace-selection';
 import {compileNodeRuntime} from '@red-cup-engineering/node-runtime-release-promotion-service/compile-node-runtime';
-import {confinePortableRuntime,bindPortableDriver} from '@red-cup-engineering/guix-machine-release-service/scripts/portable-runtime.mjs';
+import {confinePortableRuntime,bindPortableDriver} from './portable-runtime.mjs';
 import {envelopeWorkspaceRuntime,receiveWorkspaceRuntime} from '@red-cup-engineering/guix-machine-release-service/scripts/envelope-workspace-runtime.mjs';
 import {assembleWorkspaceCorpus} from '@red-cup-engineering/guix-machine-release-service/scripts/assemble-workspace-corpus.mjs';
 import {isCliEntry} from '@red-cup-engineering/guix-machine-release-service/scripts/cli-entry.mjs';
