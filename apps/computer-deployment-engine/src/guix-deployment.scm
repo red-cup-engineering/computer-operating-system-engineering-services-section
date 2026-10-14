@@ -16,7 +16,7 @@
 ;; Units and launchers are built with their actual store paths. The host's
 ;; systemd remains responsible for sockets, cgroups and process supervision.
 (define* (enterprise-deployment machine-name directory entry
-                               #:key environment-file (environment '())
+                               #:key profile environment-file (environment '())
                                socket (heap 512) (restart-seconds 5)
                                oom-score memory-high (auxiliary-units '()) (commands '()) reverse-tunnel
                                (requires '()) (declarations '()) health
@@ -29,6 +29,9 @@
         (first-cutover (and (getenv "GUIX_DEPLOYMENT_FIRST_CUTOVER") first-cutover)))
     (unless (and admitted-source (file-exists? admitted-source))
       (error "GUIX_DEPLOYMENT_SOURCE must name the fabricated registry runtime"))
+    (when profile
+      (unless (and (string? profile) (absolute-file-name? profile))
+        (error "deployment profile must be an absolute path" profile)))
     (package
       (name (string-append machine-name "-deployment"))
       (version "1")
@@ -94,7 +97,8 @@
               (call-with-output-file (string-append units "/deployment.scm")
                 (lambda (port)
                   (write
-                    `((main-unit . ,(string-append #$machine-name "-561-group.service"))
+                    `((profile . ,#$profile)
+                      (main-unit . ,(string-append #$machine-name "-561-group.service"))
                       (restart-units . ,(delete-duplicates
                         (append (list (string-append #$machine-name "-561-group.service"))
                           '#$restart-units

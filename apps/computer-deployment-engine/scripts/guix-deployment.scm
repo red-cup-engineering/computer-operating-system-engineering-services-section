@@ -1,6 +1,8 @@
 ;;; LAGOON's application deployment entry. Guix owns builds and generations.
 ;;; Run with guix time-machine -C CHANNELS -- repl -- THIS-FILE ARGUMENTS...
-(use-modules (guix profiles) (ice-9 match) (ice-9 popen) (ice-9 rdelim)
+(use-modules (guix profiles)
+             ((guix store) #:select (with-store valid-path-syntax? valid-path? add-temp-root))
+             (ice-9 match) (ice-9 popen) (ice-9 rdelim)
              (ice-9 ftw) (ice-9 regex) (ice-9 format) (ice-9 textual-ports) (json) (srfi srfi-1))
 (umask #o077)
 
@@ -30,6 +32,15 @@
     (_ (error "application profile contains more than one package" profile))))
 (define (layout store)
   (call-with-input-file (string-append store "/.guix-systemd/deployment.scm") read))
+(define* (actor-only-host? store #:optional required?)
+  ;; Missing or unreadable retained configuration cannot prove safe resumption.
+  (and store
+    (catch #t
+      (lambda ()
+        (let ((host (call-with-input-file (string-append store "/deployment/host.json") json->scm)))
+          (and (equal? "feltos.enterprise-host" (assoc-ref host "hostKind"))
+               (equal? "actor-only" (assoc-ref (assoc-ref host "web") "executionRole")))))
+      (lambda args (if required? (apply throw args) #f)))))
 (define (systemctl . args) (apply run "systemctl" "--user" args))
 (define (stop-unit unit)
   ;; stop also waits out activating/deactivating transitions. A read of
@@ -218,6 +229,9 @@
          (held-store (assoc-ref record 'held-store))
          (held-config (and held-store
            (file-exists? (string-append held-store "/.guix-systemd/deployment.scm")) (layout held-store)))
+         (resume-state-writers?
+           (not (and (equal? "cold-red-gate-561-group.service" (assoc-ref config 'main-unit))
+                     (actor-only-host? store #t) (not (actor-only-host? held-store)))))
          (state-writers (delete-duplicates
            (append (cons (assoc-ref config 'main-unit) (assoc-ref config 'state-writers))
              (if held-config (cons (assoc-ref held-config 'main-unit)
@@ -243,6 +257,19 @@
         (unless (attempt (string-append "stop " name) (lambda () (stop-unit name)))
           (set! stops-ok? #f))) (lset-difference equal? affected
             (append draining (if lock-ok? '() (assoc-ref config 'retired-units))))))
+    (unless resume-state-writers?
+      ;; Restoring bytes and compatible state must not resume a legacy worker
+      ;; that can admit financial schedules. Preserve its recorded intent, but
+      ;; hold only affected state writers; independent in-flight jobs still drain.
+      (for-each (lambda (name)
+        (unless (attempt (string-append "hold unsafe retained writer " name)
+                  (lambda () (stop-unit name)))
+          (set! stops-ok? #f))
+        (attempt (string-append "withhold unsafe retained enablement " name)
+          (lambda () (disable-unit name))))
+        (lset-difference equal? (lset-intersection equal? affected state-writers) draining))
+      (format (current-error-port)
+        "Operating restoration incomplete: retained Cold Red Gate host is not proven actor-only; affected state writers will not be resumed. Backups: ~a~%" scratch))
     (when stopped?
       (for-each (lambda (pair)
         (attempt (string-append "disable " (car pair))
@@ -273,7 +300,8 @@
         (lambda () (check-state held-config held-store)))))
     (when (and stopped? stops-ok? profile-ok? files-ok?)
       (for-each (lambda (pair)
-        (when (or state-ok? (not (member (car pair) state-writers)))
+        (when (or (and state-ok? resume-state-writers?)
+                  (not (member (car pair) state-writers)))
          (attempt (string-append "restore enablement " (car pair))
           (lambda ()
             (cond ((equal? (cdr pair) "enabled") (systemctl "enable" (car pair)))
@@ -282,12 +310,14 @@
       (for-each (lambda (pair)
         ;; Drained jobs already completed. Restarting them would replay work.
         (when (and (not (member (car pair) draining))
-                   (or state-ok? (not (member (car pair) state-writers)))
+                   (or (and state-ok? resume-state-writers?)
+                       (not (member (car pair) state-writers)))
                    (member (cdr pair) '("active" "activating" "reloading")))
           (attempt (string-append "restart held " (car pair))
             (lambda () (systemctl "start" (car pair)))))) (assoc-ref record 'active)))
     (when (and own-lock? lock) (close-port lock))
-    (let ((restored? (and stops-ok? profile-ok? files-ok? state-ok? (null? failures))))
+    (let ((restored? (and stops-ok? profile-ok? files-ok? state-ok?
+                          resume-state-writers? (null? failures))))
       (unless restored?
         (format (current-error-port) "Restoration incomplete; actual backups remain at ~a~%" scratch))
       restored?)))
@@ -448,22 +478,90 @@
   (setenv "GUIX_DEPLOYMENT_SOURCE" (canonicalize-path source))
   (apply capture "guix" "time-machine" "-C" channels "--" "build" "--no-grafts"
     "-L" load-path "-f" definition (if root (list (string-append "--root=" root)) '())))
+(define* (receive-artifact channels store profile work #:optional cutover-work)
+  ;; Both local construction and an already imported output use this same
+  ;; baseline admission and activation transaction. WORK only holds a native
+  ;; Guix manifest; cutover originals and host-file recovery keep their own paths.
+  (when cutover-work
+    (unless (assoc-ref (layout store) 'first-cutover)
+      (error "target has no pinned first-cutover source input"))
+    (unless (absolute-file-name? cutover-work) (error "first-cutover work directory must be absolute"))
+    (check-cutover-writers (layout store) store)
+    (let ((held (configured-artifact (assoc-ref (layout store) 'main-unit))))
+      (when (file-exists? (string-append held "/.guix-systemd/deployment.scm"))
+        (error "configured application already uses LAGOON; use ordinary state validation or explicit interrupted recovery"))
+      (unless (equal? held (artifact profile)) (install-artifact channels profile held work))))
+  (activate channels profile store
+    (lambda (scratch) (install-artifact channels profile store scratch)) cutover-work))
+
+(define (check-receiving-target store profile target)
+  ;; This bounded entrance receives only the existing reviewed machine family.
+  ;; The caller supplies the exact STORE returned by its reviewed source build;
+  ;; a store path does not independently attest a Git revision.
+  (unless (member target '("cold-red-gate" "bare-cedar-fog"))
+    (error "prebuilt output does not name an existing target" target))
+  (for-each (lambda (relative)
+    (let ((file (string-append store "/" relative)))
+      (unless (and (equal? file (canonicalize-path file))
+                   (eq? 'regular (stat:type (lstat file))))
+        (error "receiving declaration is not an immutable file in this output" file))))
+    (list ".guix-systemd/deployment.scm" ".guix-systemd/environment"
+          (string-append ".guix-systemd/" target "-561-group.service")
+          "deployment/host.json" "deployment/instance.json"))
+  (let* ((main (string-append target "-561-group.service"))
+         (config (layout store))
+         (host (call-with-input-file (string-append store "/deployment/host.json") json->scm))
+         (instance (call-with-input-file (string-append store "/deployment/instance.json") json->scm))
+         (environment (string-split (call-with-input-file
+           (string-append store "/.guix-systemd/environment") get-string-all) #\newline))
+         (unit (string-split (call-with-input-file
+           (string-append store "/.guix-systemd/" main) get-string-all) #\newline)))
+    (unless (equal? profile (assoc-ref config 'profile))
+      (error "receiving profile differs from the sealed target declaration" profile))
+    (unless (and (equal? main (assoc-ref config 'main-unit))
+                 (equal? "feltos.enterprise-host" (assoc-ref host "hostKind"))
+                 (equal? "instance.json" (assoc-ref host "instance"))
+                 (equal? (string-append target ".561.group")
+                         (assoc-ref (assoc-ref instance "identity") "id"))
+                 (member (string-append "ExecStart=" store "/bin/" target) unit)
+                 (member (string-append "EnvironmentFile=" store "/.guix-systemd/environment") unit)
+                 (equal? (filter (lambda (line) (string-prefix? "FELTOS_WORLD=" line)) environment)
+                         (list (format #f "FELTOS_WORLD=~s" (string-append store "/deployment/host.json")))))
+      (error "prebuilt output differs from the intended target and host binding" target store))
+    (when (equal? target "cold-red-gate")
+      (unless (equal? "actor-only" (assoc-ref (assoc-ref host "web") "executionRole"))
+        (error "Cold Red Gate receiving requires the reviewed actor-only host" store)))))
+
+(define* (receive channels store profile target #:optional cutover-work)
+  (unless (valid-path-syntax? store)
+    (error "receiving requires one exact native Guix store output" store))
+  (with-store connection
+    ;; Hold the native temporary root before looking up the imported output.
+    ;; The scratch profile below keeps it rooted after interruption as well.
+    (add-temp-root connection store)
+    (unless (and (valid-path? connection store)
+                 (equal? store (canonicalize-path store))
+                 (eq? 'directory (stat:type (lstat store))))
+      (error "prebuilt Guix output is absent or not an immutable directory" store))
+    (check-receiving-target store profile target)
+    (when (and cutover-work (not (absolute-file-name? cutover-work)))
+      (error "first-cutover work directory must be absolute"))
+    (let* ((work (mkdtemp (string-append (dirname profile) "/.lagoon-receive-XXXXXX")))
+           (root (string-append work "/application")))
+      (install-artifact channels root store work)
+      (unless (equal? store (artifact root)) (error "receiving root selected another application"))
+      (format (current-error-port) "Prebuilt output retained by native Guix profile: ~a~%" root)
+      ;; Do not remove this native profile on any failure. The existing recovery
+      ;; operation may still need the candidate after this process exits.
+      (receive-artifact channels store profile work cutover-work)
+      (cleanup "remove completed receiving root" (lambda () (run "rm" "-rf" work))))))
+
 (define* (deploy channels load-path definition source profile #:optional cutover-work)
   (let* ((work (mkdtemp (string-append (dirname profile) "/.lagoon-build-XXXXXX")))
          (root (string-append work "/application"))
          (store (build channels load-path definition source root cutover-work)))
-    (when cutover-work
-      (unless (assoc-ref (layout store) 'first-cutover)
-        (error "target has no pinned first-cutover source input"))
-      (unless (absolute-file-name? cutover-work) (error "first-cutover work directory must be absolute"))
-      (check-cutover-writers (layout store) store)
-      (let ((held (configured-artifact (assoc-ref (layout store) 'main-unit))))
-        (when (file-exists? (string-append held "/.guix-systemd/deployment.scm"))
-          (error "configured application already uses LAGOON; use ordinary state validation or explicit interrupted recovery"))
-        (unless (equal? held (artifact profile)) (install-artifact channels profile held work))))
     ;; Retain the native build root if activation or state restoration fails.
-    (activate channels profile store
-      (lambda (scratch) (install-artifact channels profile store scratch)) cutover-work)
+    (receive-artifact channels store profile work cutover-work)
     (cleanup "remove temporary native build root"
       (lambda ()
         (delete-file root)
@@ -479,6 +577,10 @@
      (deploy channels load-path definition source profile))
     (("deploy" channels load-path definition source profile "--first-cutover" work)
      (deploy channels load-path definition source profile work))
+    (("receive" channels store profile target)
+     (receive channels store profile target))
+    (("receive" channels store profile target "--first-cutover" work)
+     (receive channels store profile target work))
     (("recover" channels profile scratch)
      (unless (restore-activation channels profile scratch) (error "interrupted activation recovery is incomplete")))
     (("rollback" channels profile)
@@ -491,7 +593,7 @@
          (activate channels profile store
            (lambda (scratch) (guix channels "package" (string-append "--profile=" profile)
              (string-append "--switch-generation=" (number->string number))))))))
-    (_ (error "usage: build CHANNELS LOAD-PATH DEFINITION SOURCE ROOT [--first-cutover] | deploy CHANNELS LOAD-PATH DEFINITION SOURCE PROFILE [--first-cutover WORK] | rollback CHANNELS PROFILE | recover CHANNELS PROFILE BACKUP"))))
+    (_ (error "usage: build CHANNELS LOAD-PATH DEFINITION SOURCE ROOT [--first-cutover] | deploy CHANNELS LOAD-PATH DEFINITION SOURCE PROFILE [--first-cutover WORK] | receive CHANNELS STORE PROFILE TARGET [--first-cutover WORK] | rollback CHANNELS PROFILE | recover CHANNELS PROFILE BACKUP"))))
 
 (match (cdr (command-line))
   (("--locked" . args) (perform args))
@@ -500,6 +602,8 @@
    (let* ((profile (match args
                     (("deploy" channels load-path definition source profile) profile)
                     (("deploy" channels load-path definition source profile "--first-cutover" work) profile)
+                    (("receive" channels store profile target) profile)
+                    (("receive" channels store profile target "--first-cutover" work) profile)
                     (("rollback" channels profile) profile)
                     (("recover" channels profile scratch) profile)
                     (_ (error "invalid LAGOON invocation"))))
