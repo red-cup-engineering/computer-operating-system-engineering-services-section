@@ -18,13 +18,18 @@
                             "/../scripts/portable-runtime.mjs")
               "lagoon-portable-runtime.mjs"))
 
+(define node-job-instance-realizer
+  (local-file (string-append (dirname (current-filename))
+                            "/../scripts/realize-node-job-instance.mjs")
+              "lagoon-realize-node-job-instance.mjs"))
+
 ;; Units and launchers are built with their actual store paths. The host's
 ;; systemd remains responsible for sockets, cgroups and process supervision.
 (define* (enterprise-deployment machine-name directory entry
                                #:key profile environment-file (environment '())
                                socket (heap 512) (restart-seconds 5)
                                oom-score memory-high (auxiliary-units '()) (commands '()) reverse-tunnel
-                               (requires '()) (declarations '()) health
+                               (requires '()) (declarations '()) health node-job-instance
                                (configuration-files #()) (restart-units #())
                                (retired-units #()) (retired-files #()) (drain-units #())
                                state-check state-plan (state-writers #()) first-cutover retirement-lock)
@@ -90,6 +95,13 @@
                     (error "target declarations overlap application content" name))
                   (copy-recursively source (string-append out "/" name)))
                 '#$(map car declarations) (list #$@(map cdr declarations)))
+              ;; Realize only the explicitly selected native job fields, after
+              ;; retaining the exact authored instance in this same output.
+              (when #$(and node-job-instance #t)
+                (invoke runtime #$node-job-instance-realizer out
+                  (assoc-ref '#$node-job-instance 'path)
+                  (assoc-ref '#$node-job-instance 'module)
+                  (assoc-ref '#$node-job-instance 'export)))
               ;; The authored ingress already contains the Caddy configuration;
               ;; realize those bytes in Guix rather than carrying a release envelope.
               (when (file-exists? (string-append out "/deployment/ingress.json"))
