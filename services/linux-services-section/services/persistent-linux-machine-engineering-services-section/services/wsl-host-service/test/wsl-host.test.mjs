@@ -3,9 +3,15 @@ import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { applyPlan, bytes, memoryBudget, observeLive, planFiles, renderFiles, renderIni, renderPagefileScript, renderSysctl, renderUdev } from "../src/wsl-host.mjs";
+import { applyPlan, bytes, memoryBudget, observeLive, planFiles, renderFiles, renderHeadroomGuardUnit, renderIni, renderPagefileScript, renderSysctl, renderUdev } from "../src/wsl-host.mjs";
 
-test("a system-managed pagefile hands sizing back to Windows and removes no setting by hand (WSL-17)", () => {
+test("the headroom guard takes a page-cache ceiling only when the record sets one (WSL-20)", () => {
+  const g = { description: "d", minOrder7Blocks: 32, intervalSeconds: 5, dropCachesWhenShort: true };
+  assert.match(renderHeadroomGuardUnit(g), /ExecStart=\/usr\/local\/sbin\/wsl-hvsock-headroom-guard 32 5 yes\n/);
+  assert.match(renderHeadroomGuardUnit({ ...g, maxCacheMiB: 3072, minSecondsBetweenCacheDrops: 60 }), /ExecStart=\/usr\/local\/sbin\/wsl-hvsock-headroom-guard 32 5 yes 3072 60\n/);
+});
+
+test("a system-managed pagefile hands sizing back to Windows and removes no setting by hand (WSL-19)", () => {
   const s = renderPagefileScript({ mode: "system" });
   assert.match(s, /AutomaticManagedPagefile = \$true/);
   assert.doesNotMatch(s, /Remove-CimInstance|New-CimInstance/);

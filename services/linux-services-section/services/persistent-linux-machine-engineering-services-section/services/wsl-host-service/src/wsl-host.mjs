@@ -82,7 +82,8 @@ export function renderHeadroomGuardUnit(g) {
     "",
     "[Service]",
     "Type=simple",
-    `ExecStart=/usr/local/sbin/wsl-hvsock-headroom-guard ${g.minOrder7Blocks} ${g.intervalSeconds} ${g.dropCachesWhenShort ? "yes" : "no"}`,
+    `ExecStart=/usr/local/sbin/wsl-hvsock-headroom-guard ${g.minOrder7Blocks} ${g.intervalSeconds} ${g.dropCachesWhenShort ? "yes" : "no"}` +
+      (g.maxCacheMiB ? ` ${g.maxCacheMiB} ${g.minSecondsBetweenCacheDrops ?? 60}` : ""),
     "Restart=always",
     "RestartSec=5",
     "",
@@ -140,7 +141,7 @@ export function renderDefenderScript(d) {
 }
 
 export function renderPagefileScript(p) {
-  // WSL-17: Windows sizes the pagefile to commit demand, which on a host running a WSL VM beside desktop apps
+  // WSL-19: Windows sizes the pagefile to commit demand, which on a host running a WSL VM beside desktop apps
   // exceeds physical memory (Bare Cedar Fog 2026-10-14: 35-40 GB committed on 23.3 GB of RAM).
   if (p.mode === "system") return `# Run from an elevated PowerShell; takes effect after a Windows restart.\n$cs = Get-CimInstance Win32_ComputerSystem\nSet-CimInstance -InputObject $cs -Property @{ AutomaticManagedPagefile = $true }\n`;
   const head = `# Run from an elevated PowerShell; takes effect after a Windows restart.\n$cs = Get-CimInstance Win32_ComputerSystem\nSet-CimInstance -InputObject $cs -Property @{ AutomaticManagedPagefile = $false }\nGet-CimInstance Win32_PageFileSetting | Remove-CimInstance\n`;
