@@ -26,8 +26,11 @@ Each requirement has one shall. Identifiers are stable.
 - WSL-8. When asked to plan on a live host, the service shall also compare the live kernel values (sysctl, block-queue attributes, kernel command line tokens) with the parameters and report each mismatch.
 - WSL-9. When asked to apply, the service shall write only files that are not current, so a second apply writes nothing.
 - WSL-10. When it replaces an existing Windows-side file, the service shall first keep the previous content beside it under a dated name.
-- WSL-11. When files change, the service shall run each reload hook that those files name once (sysctl, udev, systemd daemon reload and enablement, agent limits), and no hook when nothing changed.
+- WSL-11. When files or managed live values drift, the service shall run each corresponding Linux reload hook once, and leave a converged host unchanged.
 - WSL-12. When a boot-time write of a block-queue attribute is refused as busy, the service shall re-send a change event after boot so the limit holds on every disk.
+
+- WSL-17. Apply shall reconcile managed live sysctl, block-queue and memory-budget values even when rendered files are current, using the existing owned hooks.
+- WSL-18. Apply shall receive its result by observing the scoped files and live values again, exiting 0 for convergence and 2 for remaining drift.
 
 ## Boundaries
 
