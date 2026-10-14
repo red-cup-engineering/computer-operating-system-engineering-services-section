@@ -1,6 +1,7 @@
 ;;; LAGOON's application deployment entry. Guix owns builds and generations.
 ;;; Run with guix time-machine -C CHANNELS -- repl -- THIS-FILE ARGUMENTS...
-(use-modules (guix profiles)
+(use-modules (guix profiles) (guix channels) (guix describe)
+             ((guix scripts build) #:select (register-root))
              ((guix store) #:select (with-store valid-path-syntax? valid-path? add-temp-root))
              (ice-9 match) (ice-9 popen) (ice-9 rdelim)
              (ice-9 ftw) (ice-9 regex) (ice-9 format) (ice-9 textual-ports) (json) (srfi srfi-1))
@@ -17,8 +18,18 @@
          (body (get-string-all port)) (status (close-pipe port)))
     (unless (zero? status) (error "deployment command failed" (car args)))
     (string-trim-both body)))
+(define (current-pinned-guix channels)
+  (let ((profile (current-profile)) (expected (load channels))
+        (actual (current-channels)))
+    (define (revisions channels)
+      (map (lambda (channel) (cons (channel-name channel) (channel-commit channel))) channels))
+    (and profile (pair? expected) (equal? (revisions expected) (revisions actual))
+         (string-append (canonicalize-path profile) "/bin/guix"))))
+(define (guix-command channels)
+  (let ((installed (current-pinned-guix channels)))
+    (if installed (list installed) (list "guix" "time-machine" "-C" channels "--"))))
 (define (guix channels . args)
-  (apply run "guix" "time-machine" "-C" channels "--" args))
+  (apply run (append (guix-command channels) args)))
 (define (exists? file)
   (catch 'system-error
     (lambda () (lstat file))
@@ -476,8 +487,9 @@
   (if first-cutover? (setenv "GUIX_DEPLOYMENT_FIRST_CUTOVER" "1")
       (unsetenv "GUIX_DEPLOYMENT_FIRST_CUTOVER"))
   (setenv "GUIX_DEPLOYMENT_SOURCE" (canonicalize-path source))
-  (apply capture "guix" "time-machine" "-C" channels "--" "build" "--no-grafts"
-    "-L" load-path "-f" definition (if root (list (string-append "--root=" root)) '())))
+  (apply capture (append (guix-command channels)
+    (list "build" "--no-grafts" "-L" load-path "-f" definition)
+    (if root (list (string-append "--root=" root)) '()))))
 (define* (receive-artifact channels store profile work #:optional cutover-work)
   ;; Both local construction and an already imported output use this same
   ;; baseline admission and activation transaction. WORK only holds a native
@@ -532,7 +544,22 @@
       (unless (equal? "actor-only" (assoc-ref (assoc-ref host "web") "executionRole"))
         (error "Cold Red Gate receiving requires the reviewed actor-only host" store)))))
 
+(define (protect-receiving-inputs connection channels)
+  (unless (current-pinned-guix channels)
+    (error "receiving requires the imported pinned Guix profile"))
+  (let ((inputs (map canonicalize-path
+                    (list channels (car (command-line)) (current-profile)))))
+    (for-each (lambda (input)
+      (unless (valid-path-syntax? input) (error "receiving input is not a native store item" input))
+      (add-temp-root connection input)
+      (unless (valid-path? connection input) (error "receiving input is not registered" input))) inputs)
+    inputs))
+
 (define* (receive channels store profile target #:optional cutover-work)
+  ;; Receiving uses the builder's already-realized native Guix, never a local
+  ;; time-machine rebuild. Its ordinary profile metadata identifies the source.
+  (unless (current-pinned-guix channels)
+    (error "receiving requires the imported pinned Guix profile"))
   (unless (valid-path-syntax? store)
     (error "receiving requires one exact native Guix store output" store))
   (with-store connection
@@ -543,11 +570,15 @@
                  (equal? store (canonicalize-path store))
                  (eq? 'directory (stat:type (lstat store))))
       (error "prebuilt Guix output is absent or not an immutable directory" store))
+    (protect-receiving-inputs connection channels)
     (check-receiving-target store profile target)
     (when (and cutover-work (not (absolute-file-name? cutover-work)))
       (error "first-cutover work directory must be absolute"))
     (let* ((work (mkdtemp (string-append (dirname profile) "/.lagoon-receive-XXXXXX")))
            (root (string-append work "/application")))
+      (register-root connection
+        (map canonicalize-path (list channels (car (command-line)) (current-profile)))
+        (string-append work "/receiving-input"))
       (install-artifact channels root store work)
       (unless (equal? store (artifact root)) (error "receiving root selected another application"))
       (format (current-error-port) "Prebuilt output retained by native Guix profile: ~a~%" root)
@@ -567,6 +598,33 @@
         (delete-file root)
         (when (file-exists? (string-append work "/manifest.scm")) (delete-file (string-append work "/manifest.scm")))
         (rmdir work)))))
+(define* (rollback channels profile #:optional target)
+  (let ((number (previous-generation-number profile)))
+    (when (zero? number) (error "no previous application generation"))
+    (let ((store (artifact (generation-file-name profile number))))
+      (define (activate-previous)
+        (activate channels profile store
+          (lambda (scratch) (guix channels "package" (string-append "--profile=" profile)
+            (string-append "--switch-generation=" (number->string number))))))
+      (unless store (error "previous generation has no application"))
+      (unless (file-exists? (string-append store "/.guix-systemd/deployment.scm"))
+        (error "previous output predates LAGOON; its retained host files and data need explicit owner restoration"))
+      (if target
+        (with-store connection
+          (let ((inputs (protect-receiving-inputs connection channels)))
+            (check-receiving-target store profile target)
+            (let ((work (mkdtemp (string-append (dirname profile) "/.lagoon-rollback-XXXXXX"))))
+              (register-root connection inputs (string-append work "/receiving-input"))
+              ;; Preserve these roots if activation or recovery raises.
+              (activate-previous)
+              (cleanup "remove completed rollback input roots"
+                (lambda ()
+                  ;; register-root numbers multiple inputs from zero.
+                  (for-each (lambda (index)
+                    (delete-file (string-append work "/receiving-input-" (number->string index))))
+                    (iota (length inputs)))
+                  (rmdir work))))))
+        (activate-previous)))))
 (define (perform args)
   (match args
     (("build" channels load-path definition source root)
@@ -583,17 +641,9 @@
      (receive channels store profile target work))
     (("recover" channels profile scratch)
      (unless (restore-activation channels profile scratch) (error "interrupted activation recovery is incomplete")))
-    (("rollback" channels profile)
-     (let ((number (previous-generation-number profile)))
-       (when (zero? number) (error "no previous application generation"))
-       (let ((store (artifact (generation-file-name profile number))))
-         (unless store (error "previous generation has no application"))
-         (unless (file-exists? (string-append store "/.guix-systemd/deployment.scm"))
-           (error "previous output predates LAGOON; its retained host files and data need explicit owner restoration"))
-         (activate channels profile store
-           (lambda (scratch) (guix channels "package" (string-append "--profile=" profile)
-             (string-append "--switch-generation=" (number->string number))))))))
-    (_ (error "usage: build CHANNELS LOAD-PATH DEFINITION SOURCE ROOT [--first-cutover] | deploy CHANNELS LOAD-PATH DEFINITION SOURCE PROFILE [--first-cutover WORK] | receive CHANNELS STORE PROFILE TARGET [--first-cutover WORK] | rollback CHANNELS PROFILE | recover CHANNELS PROFILE BACKUP"))))
+    (("rollback" channels profile) (rollback channels profile))
+    (("rollback" channels profile target) (rollback channels profile target))
+    (_ (error "usage: build CHANNELS LOAD-PATH DEFINITION SOURCE ROOT [--first-cutover] | deploy CHANNELS LOAD-PATH DEFINITION SOURCE PROFILE [--first-cutover WORK] | receive CHANNELS STORE PROFILE TARGET [--first-cutover WORK] | rollback CHANNELS PROFILE [TARGET] | recover CHANNELS PROFILE BACKUP"))))
 
 (match (cdr (command-line))
   (("--locked" . args) (perform args))
@@ -605,11 +655,16 @@
                     (("receive" channels store profile target) profile)
                     (("receive" channels store profile target "--first-cutover" work) profile)
                     (("rollback" channels profile) profile)
+                    (("rollback" channels profile target) profile)
                     (("recover" channels profile scratch) profile)
                     (_ (error "invalid LAGOON invocation"))))
           (channels (cadr args)))
      (unless (absolute-file-name? profile) (error "Guix profile must be an absolute path"))
+     (when (and (or (equal? "receive" (car args))
+                    (and (equal? "rollback" (car args)) (= 4 (length args))))
+                (not (current-pinned-guix channels)))
+       (error "receiving requires the imported pinned Guix profile"))
      (run "mkdir" "-p" (dirname profile))
      (apply run "flock" "--exclusive" "--wait" "900" (string-append profile ".lagoon-lock")
-       "guix" "time-machine" "-C" channels "--" "repl" "--"
-       (canonicalize-path (car (command-line))) "--locked" args))))
+       (append (guix-command channels) (list "repl" "--"
+         (canonicalize-path (car (command-line))) "--locked") args)))))
