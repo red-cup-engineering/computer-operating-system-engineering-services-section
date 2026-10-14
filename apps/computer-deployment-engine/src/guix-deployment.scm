@@ -13,13 +13,23 @@
   #:use-module (srfi srfi-1)
   #:export (enterprise-deployment))
 
+(define portable-runtime-check
+  (local-file (string-append (dirname (current-filename))
+                            "/../scripts/portable-runtime.mjs")
+              "lagoon-portable-runtime.mjs"))
+
+(define node-job-instance-realizer
+  (local-file (string-append (dirname (current-filename))
+                            "/../scripts/realize-node-job-instance.mjs")
+              "lagoon-realize-node-job-instance.mjs"))
+
 ;; Units and launchers are built with their actual store paths. The host's
 ;; systemd remains responsible for sockets, cgroups and process supervision.
 (define* (enterprise-deployment machine-name directory entry
                                #:key profile environment-file (environment '())
                                socket (heap 512) (restart-seconds 5)
                                oom-score memory-high (auxiliary-units '()) (commands '()) reverse-tunnel
-                               (requires '()) (declarations '()) health
+                               (requires '()) (declarations '()) health node-job-instance
                                (configuration-files #()) (restart-units #())
                                (retired-units #()) (retired-files #()) (drain-units #())
                                state-check state-plan (state-writers #()) first-cutover retirement-lock)
@@ -39,10 +49,10 @@
       (build-system trivial-build-system)
       (arguments
        (list
-        #:modules '((guix build utils) (ice-9 format) (ice-9 regex) (ice-9 ftw) (srfi srfi-1))
+        #:modules '((guix build utils) (ice-9 format) (ice-9 regex) (ice-9 ftw) (srfi srfi-1) (srfi srfi-13))
         #:builder
         #~(begin
-            (use-modules (guix build utils) (ice-9 format) (ice-9 regex) (ice-9 ftw) (srfi srfi-1))
+            (use-modules (guix build utils) (ice-9 format) (ice-9 regex) (ice-9 ftw) (srfi srfi-1) (srfi srfi-13))
             (let* ((out #$output)
                    (runtime #$(file-append node "/bin/node"))
                    (bin (string-append out "/bin"))
@@ -61,6 +71,7 @@
               ;; in the output's closure without copying the entire tree twice.
               (mkdir-p out) (mkdir-p bin) (mkdir-p units)
               (let ((tree #$(local-file admitted-source "registry-runtime" #:recursive? #t)))
+                (invoke runtime #$portable-runtime-check tree #$entry)
                 (when (file-exists? (string-append tree "/.guix-systemd"))
                   (error "application contains reserved deployment directory"))
                 (for-each (lambda (file)
@@ -84,6 +95,13 @@
                     (error "target declarations overlap application content" name))
                   (copy-recursively source (string-append out "/" name)))
                 '#$(map car declarations) (list #$@(map cdr declarations)))
+              ;; Realize only the explicitly selected native job fields, after
+              ;; retaining the exact authored instance in this same output.
+              (when #$(and node-job-instance #t)
+                (invoke runtime #$node-job-instance-realizer out
+                  (assoc-ref '#$node-job-instance 'path)
+                  (assoc-ref '#$node-job-instance 'module)
+                  (assoc-ref '#$node-job-instance 'export)))
               ;; The authored ingress already contains the Caddy configuration;
               ;; realize those bytes in Guix rather than carrying a release envelope.
               (when (file-exists? (string-append out "/deployment/ingress.json"))
@@ -151,6 +169,28 @@
                                 #$(file-append bash-minimal "/bin/sh") runtime program)))
                     (chmod path #o555)))
                 '#$commands)
+              ;; Receive declared carriers before writing runnable units. These
+              ;; are structural checks only; never execute a precheck here.
+              (for-each
+                (lambda (path)
+                  (unless (and (string? path) (not (absolute-file-name? path))
+                               (every (lambda (part) (and (not (string-null? part))
+                                                         (not (member part '("." "..")))))
+                                      (string-split path #\/)))
+                    (error "deployment carrier must be a relative file path" path))
+                  (unless (eq? 'regular (stat:type (stat (string-append out "/" path))))
+                    (error "declared deployment carrier is absent or nonregular" path)))
+                (append
+                  (list #$entry)
+                  (map (lambda (command) (assoc-ref command 'program)) '#$commands)
+                  (map (lambda (spec) (assoc-ref spec "source")) '#$configuration-files)
+                  (if #$state-check (list #$state-check) '())
+                  (append-map (lambda (service)
+                    (let ((checks (assoc-ref service 'precheck))
+                          (poststop (assoc-ref service 'poststop)))
+                      (append (list (assoc-ref service 'program))
+                        (cond ((not checks) '()) ((string? checks) (list checks)) (else checks))
+                        (if poststop (list poststop) '())))) '#$auxiliary-units)))
               (call-with-output-file unit
                 (lambda (port)
                   ;; Units the service cannot start without (its rendered credentials, say)
@@ -234,4 +274,5 @@
        "A published application closure, its Guix interpreter, launcher and service.
 Persistent state and credentials remain in the host's existing custody.")
       (license #f))))
+
 
