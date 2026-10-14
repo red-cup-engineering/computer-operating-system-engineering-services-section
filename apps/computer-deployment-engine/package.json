@@ -12,9 +12,12 @@
     "@red-cup-engineering/eavt-services-section": "workspace:*",
     "@red-cup-engineering/flatfile-resource-graph-service": "workspace:*",
     "@red-cup-engineering/computer-inference-engine": "workspace:*",
-    "@red-cup-engineering/systemd-unit-inventory-observation-service": "workspace:*"
+    "@red-cup-engineering/systemd-unit-inventory-observation-service": "workspace:*",
+    "@red-cup-engineering/node-runtime-release-promotion-service": "workspace:*",
+    "@red-cup-engineering/guix-machine-release-service": "workspace:*"
   },
   "scripts": {
+    "test:portable-assembly": "node --test test/assemble-portable-runtime.test.mjs",
     "test": "which guile >/dev/null 2>&1 || { echo 'computer-deployment-engine test: guile not found on PATH — the SRFI-64 suite cannot run' >&2; exit 1; }; guile scripts/run-node-worker-tests.scm"
   },
   "files": [
