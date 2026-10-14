@@ -140,6 +140,9 @@ export function renderDefenderScript(d) {
 }
 
 export function renderPagefileScript(p) {
+  // WSL-17: Windows sizes the pagefile to commit demand, which on a host running a WSL VM beside desktop apps
+  // exceeds physical memory (Bare Cedar Fog 2026-10-14: 35-40 GB committed on 23.3 GB of RAM).
+  if (p.mode === "system") return `# Run from an elevated PowerShell; takes effect after a Windows restart.\n$cs = Get-CimInstance Win32_ComputerSystem\nSet-CimInstance -InputObject $cs -Property @{ AutomaticManagedPagefile = $true }\n`;
   const head = `# Run from an elevated PowerShell; takes effect after a Windows restart.\n$cs = Get-CimInstance Win32_ComputerSystem\nSet-CimInstance -InputObject $cs -Property @{ AutomaticManagedPagefile = $false }\nGet-CimInstance Win32_PageFileSetting | Remove-CimInstance\n`;
   if (p.mode === "none") return head;
   return head + `New-CimInstance -ClassName Win32_PageFileSetting -Property @{ Name = '${p.path}'; InitialSize = ${p.megabytes}; MaximumSize = ${p.megabytes} }\n`;

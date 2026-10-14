@@ -41,6 +41,7 @@ Each requirement has one shall. Identifiers are stable.
 ## Order
 
 - WSL-16. The owner of the particular values shall be the operations section of the host, and the service shall remain generic engineering, in the order science, engineering, operations.
+- WSL-17. When the record declares a system-managed pagefile, the service shall render a script that returns the pagefile to Windows' automatic management, because a host running a WSL VM beside desktop applications commits more than its physical memory (Bare Cedar Fog, 2026-10-14: 35–40 GB committed on 23.3 GB of RAM), and a host without a pagefile then fails allocations.
 
 ## Receiving conditions
 

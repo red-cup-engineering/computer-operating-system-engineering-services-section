@@ -3,7 +3,14 @@ import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { applyPlan, bytes, memoryBudget, observeLive, planFiles, renderFiles, renderIni, renderSysctl, renderUdev } from "../src/wsl-host.mjs";
+import { applyPlan, bytes, memoryBudget, observeLive, planFiles, renderFiles, renderIni, renderPagefileScript, renderSysctl, renderUdev } from "../src/wsl-host.mjs";
+
+test("a system-managed pagefile hands sizing back to Windows and removes no setting by hand (WSL-17)", () => {
+  const s = renderPagefileScript({ mode: "system" });
+  assert.match(s, /AutomaticManagedPagefile = \$true/);
+  assert.doesNotMatch(s, /Remove-CimInstance|New-CimInstance/);
+  assert.match(renderPagefileScript({ mode: "fixed", path: "C:\\pagefile.sys", megabytes: 4096 }), /InitialSize = 4096; MaximumSize = 4096/);
+});
 
 const params = {
   schema: "wsl-host-parameters@1",
