@@ -3,10 +3,17 @@ import { lstatSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "n
 import { createRequire } from "node:module";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { readInstanceDefinition } from "@red-cup-engineering/metroplat/instance";
-import { parseJsonValue } from "@red-cup-engineering/json-services-section/parse-json-value";
-import { parseJsonPointer, resolveJsonPointer } from "@red-cup-engineering/json-services-section/resolve-json-pointer";
-import { admitModuleParameterizationSources, readModuleParameterizations } from "@red-cup-engineering/javascript-node-services-section/module-closure";
+// This standalone Guix consumer reads the installed MetroPlat instance. Resolve
+// its codecs and parameter reader from that library's declared dependency graph,
+// rather than assuming PNPM hoists them into the application's root.
+const installed = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const application = createRequire(installed ? join(process.argv[2], "package.json") : import.meta.url);
+const instanceModule = application.resolve("@red-cup-engineering/metroplat/instance");
+const library = createRequire(instanceModule);
+const { readInstanceDefinition } = await import(pathToFileURL(instanceModule).href);
+const { parseJsonValue } = await import(pathToFileURL(library.resolve("@red-cup-engineering/json-services-section/parse-json-value")).href);
+const { parseJsonPointer, resolveJsonPointer } = await import(pathToFileURL(library.resolve("@red-cup-engineering/json-services-section/resolve-json-pointer")).href);
+const { admitModuleParameterizationSources, readModuleParameterizations } = await import(pathToFileURL(library.resolve("@red-cup-engineering/javascript-node-services-section/module-closure")).href);
 
 const object = value => value !== null && typeof value === "object" && !Array.isArray(value);
 const relativePath = value => typeof value === "string" && value.length > 0
