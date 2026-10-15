@@ -14,13 +14,11 @@
   #:export (enterprise-deployment))
 
 (define portable-runtime-check
-  (local-file (string-append (dirname (current-filename))
-                            "/../scripts/portable-runtime.mjs")
+  (local-file "../scripts/portable-runtime.mjs"
               "lagoon-portable-runtime.mjs"))
 
 (define node-job-instance-realizer
-  (local-file (string-append (dirname (current-filename))
-                            "/../scripts/realize-node-job-instance.mjs")
+  (local-file "../scripts/realize-node-job-instance.mjs"
               "lagoon-realize-node-job-instance.mjs"))
 
 ;; Units and launchers are built with their actual store paths. The host's

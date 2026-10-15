@@ -541,8 +541,9 @@
                          (list (format #f "FELTOS_WORLD=~s" (string-append store "/deployment/host.json")))))
       (error "prebuilt output differs from the intended target and host binding" target store))
     (when (equal? target "cold-red-gate")
-      (unless (equal? "actor-only" (assoc-ref (assoc-ref host "web") "executionRole"))
-        (error "Cold Red Gate receiving requires the reviewed actor-only host" store)))))
+      (unless (member (assoc-ref (assoc-ref host "web") "executionRole")
+                      '("actor-only" "worker"))
+        (error "Cold Red Gate receiving requires an explicit supported host execution role" store)))))
 
 (define (protect-receiving-inputs connection channels)
   (unless (current-pinned-guix channels)
