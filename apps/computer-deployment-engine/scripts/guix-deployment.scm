@@ -160,8 +160,10 @@
         (format (current-error-port) "Waiting for existing jobs to finish: ~a~%" busy)
         (sleep 5) (loop)))))
 (define (check-cutover-writers config store)
-  ;; Quiescing a persistent writer is not permission to retire its policy.
-  (let ((declared (append (units store) (configuration-unit-names config))))
+  ;; A writer needs a current declaration or explicit retirement in the target.
+  ;; Merely naming it in the quiescence set never retires its policy.
+  (let ((declared (append (units store) (configuration-unit-names config)
+                          (assoc-ref config 'retired-units))))
     (for-each (lambda (name)
       (when (and (not (member name declared))
                  (not (job-unit? (assoc-ref config 'main-unit) name))
@@ -541,8 +543,9 @@
                          (list (format #f "FELTOS_WORLD=~s" (string-append store "/deployment/host.json")))))
       (error "prebuilt output differs from the intended target and host binding" target store))
     (when (equal? target "cold-red-gate")
-      (unless (equal? "actor-only" (assoc-ref (assoc-ref host "web") "executionRole"))
-        (error "Cold Red Gate receiving requires the reviewed actor-only host" store)))))
+      (unless (member (assoc-ref (assoc-ref host "web") "executionRole")
+                      '("actor-only" "worker"))
+        (error "Cold Red Gate receiving requires an explicit supported host execution role" store)))))
 
 (define (protect-receiving-inputs connection channels)
   (unless (current-pinned-guix channels)
