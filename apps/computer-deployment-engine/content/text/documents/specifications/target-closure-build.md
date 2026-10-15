@@ -9,7 +9,7 @@ Status: specification, 2026-10-15. Requirement: `deploy-is-built-from-the-target
 1. A *target* is the unit of build: a named set of entry points for one machine role (first: `kalshi-desk`, entries `kalshi-desk.mjs`, `kalshi-desk-review.mjs`, `shadow-score.mjs`, `weather.mjs`, `kalshi-sources.mjs`, `category-shadows.mjs`). A machine's deploy is the union of the targets it runs, not "the common software".
 2. The superrepo stays the home of **source**. A build checks out only the repositories that contain its closure's importers.
 3. The closure is **computed and published as a receipt**, from the lock, then **checked against the code**: declared-but-unimported workspace dependencies are reported, and a cycle in production workspace dependencies fails the gate.
-4. The registry stays the end state for "the common package release" (rule `production-uses-guix-pnpm-and-the-house-registry`): once a package's owner publishes it, a target installs it by version and needs no checkout of it at all. The closure build is the step that gets there without waiting for every package to be published.
+4. The registry stays the end state for "the common package release" (the rule that production uses Guix, pnpm and registry.561.group): once a package's owner publishes it, a target installs it by version and needs no checkout of it at all. The closure build is the step that gets there without waiting for every package to be published.
 5. The systemd/Guix machine layer (`scripts/guix-deployment.scm`) is unchanged by this; only what it wraps changes.
 
 **Non-goals.** No change to credentials, state conversion, first-cutover or rollback. No claim about build time or bytes until measured (Test 1).
