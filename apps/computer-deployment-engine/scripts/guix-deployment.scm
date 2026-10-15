@@ -419,7 +419,8 @@
         (when cutover-work
           (let ((main (assoc-ref config 'main-unit)))
             (for-each (lambda (name)
-              (when (or (string-suffix? ".timer" name) (equal? name main))
+              (when (or (and (member name state-writers) (string-suffix? ".timer" name))
+                        (equal? name main))
                 (disable-unit name) (stop-unit name))) affected)
             ;; The actor no longer admits jobs. Existing immutable job units
             ;; finish naturally; never terminate financial or queued work.
