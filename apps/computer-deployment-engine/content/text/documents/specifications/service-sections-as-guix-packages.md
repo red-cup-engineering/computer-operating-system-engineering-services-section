@@ -38,7 +38,7 @@ L4. Guile and Node stay the implementation languages already in the application;
 
 T1. Closure equality: on the fixture the Kalshi trading job, the generation's requisites equal the union of the unit's requisites; the check exits 0. Delete one package from the manifest: the check exits 1 naming it (R4). Add one unreferenced package: exits 1 naming it (R1).
 T2. Isolation (R2): break a section the Kalshi trading job does not import (introduce a syntax error in a copy of computer-data-engineering's entry); building the Kalshi trading-job package produces the same output hash as before the break.
-T3. Hermeticity (R3): build twice with `--no-grafts --check`; the two sha256 sums are equal; the build record at `data/records/builds/<date>-kalshi-trading-job-package.json` passes `node scripts/check-hermetic-build.mjs`.
+T3. Hermeticity (R3): build twice with `--no-grafts --check`; the two sha256 sums are equal; each build record at `data/records/builds/<date>-kalshi-trading-job-package.json` passes `node scripts/check-hermetic-build.mjs`.
 T4. Size: report the closure size in store items and bytes next to the whole-estate figures (809 importers, 1,349 snapshots); the target is the 40-importer, 24-leaf closure measured for the Kalshi trading-job entry point.
 T5. Cycle: if the Kalshi trading-job entry point reaches the 87-package component, T4's report says so and the component is built as one package.
 
