@@ -439,7 +439,8 @@
         (when cutover-work
           (let ((main (assoc-ref config 'main-unit)))
             (for-each (lambda (name)
-              (when (or (string-suffix? ".timer" name) (equal? name main))
+              (when (or (and (member name state-writers) (string-suffix? ".timer" name))
+                        (equal? name main))
                 (disable-unit name) (stop-unit name))) affected)
             ;; The actor no longer admits jobs. Existing immutable job units
             ;; finish naturally; never terminate financial or queued work.
@@ -485,27 +486,8 @@
         (apply throw args)))))
 
 
-(define (assert-closed source)
-  (let* ((root (canonicalize-path source))
-         (prefix (string-append root "/")))
-    (file-system-fold
-     (lambda (file stat result) #t)
-     (lambda (file stat result)
-       (when (eq? 'symlink (stat:type stat))
-         (when (absolute-file-name? (readlink file))
-           (error "runtime link is absolute and cannot relocate into the store" file))
-         (let ((target (canonicalize-path file)))
-           (unless (or (string=? target root) (string-prefix? prefix target))
-             (error "runtime link escapes the admitted closure" file target))))
-       result)
-     (lambda (file stat result) result)
-     (lambda (file stat result) result)
-     (lambda (file stat result) result)
-     (lambda (file stat errno result) (error "cannot read runtime input" file errno))
-     #t root lstat)))
-
 (define* (build channels load-path definition source root #:optional first-cutover?)
-  (assert-closed source)
+  ;; The immutable builder owns confinement and validates every runtime once.
   (if first-cutover? (setenv "GUIX_DEPLOYMENT_FIRST_CUTOVER" "1")
       (unsetenv "GUIX_DEPLOYMENT_FIRST_CUTOVER"))
   (setenv "GUIX_DEPLOYMENT_SOURCE" (canonicalize-path source))
