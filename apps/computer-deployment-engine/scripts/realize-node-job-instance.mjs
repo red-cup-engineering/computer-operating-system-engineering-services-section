@@ -23,11 +23,27 @@ export function realizeNodeJobInstance(source, output, selection) {
   if (!object(instance) || instance.version !== 1 || instance.instanceOf !== "@red-cup-engineering/metroplat"
     || !Array.isArray(instance.scheduleSources)) throw new TypeError("node-job realization requires a MetroPlat instance with schedule sources");
   const configurations = [];
-  for (const entry of instance.scheduleSources) {
-    if (!object(entry) || entry.module !== selection.module || entry.export !== selection.export) continue;
-    if (!object(entry.configuration) || !Object.hasOwn(entry.configuration, "jobConfiguration"))
-      throw new TypeError("selected node-job schedule source must declare its native job configuration");
-    const configuration = entry.configuration.jobConfiguration;
+  const sources = [...instance.scheduleSources, ...(instance.operationSources ?? [])];
+  let scheduleSources = 0;
+  for (const entry of sources) {
+    if (!object(entry) || entry.module !== selection.module
+      || ![selection.export, "nodeJobOperations"].includes(entry.export)) continue;
+    if (entry.export === selection.export) scheduleSources++;
+    const parameterData = entry.configuration;
+    if (!object(parameterData) || typeof parameterData.law !== "string" || !parameterData.law.trim()
+      || !Array.isArray(parameterData.deploymentRecords) || parameterData.deploymentRecords.length === 0)
+      throw new TypeError("selected node-job sources require their authored law and deployment records");
+    const deployments = new Set();
+    for (const record of parameterData.deploymentRecords) {
+    if (!object(record) || typeof record.deployment !== "string" || !/^[a-z0-9][a-z0-9-]*$/u.test(record.deployment)
+      || deployments.has(record.deployment)
+      || Object.keys(record).some(key => !["deployment", "host", "scope", "jobConfiguration"].includes(key))
+      || typeof record.host !== "string" || !record.host.trim() || !Array.isArray(record.scope) || record.scope.length > 64
+      || record.scope.some(term => typeof term !== "string" || !term.trim() || term.length > 2048)
+      || new Set(record.scope).size !== record.scope.length)
+      throw new TypeError("native job records require authored deployment, host and scope data");
+    deployments.add(record.deployment);
+    const configuration = record.jobConfiguration;
     if (!object(configuration) || configuration.runtimeRoot !== token || configuration.artifact !== token)
       throw new TypeError("native job runtimeRoot and artifact must each be exactly {release}");
     if (!relativePath(configuration.jobsDirectory) || configuration.jobsDirectory.includes(token)
@@ -38,8 +54,9 @@ export function realizeNodeJobInstance(source, output, selection) {
     configuration.runtimeRoot = output;
     configuration.artifact = output;
     configurations.push(configuration);
+    }
   }
-  if (configurations.length === 0) throw new TypeError("selected instance declares no native job configuration");
+  if (scheduleSources === 0 || configurations.length === 0) throw new TypeError("selected instance declares no native job schedule parameter data");
   return { instance, configurations, content: `${JSON.stringify(instance, null, 2)}\n` };
 }
 
