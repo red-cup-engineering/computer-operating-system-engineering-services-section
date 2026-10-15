@@ -2,7 +2,7 @@
   "name": "@red-cup-engineering/computer-deployment-engine",
   "version": "0.1.0",
   "type": "module",
-  "description": "LAGOON: the deployment and production system, analogous to Nix and Guix, specialized for engines, servers, clients, platforms, and applications over the shared JSNode Hoare engine.",
+  "description": "LAGOON: deployment and production through GNU Guix, native profiles, and the host's existing service manager.",
   "keywords": [
     "flatfile-agent-engine"
   ],
@@ -12,16 +12,21 @@
     "@red-cup-engineering/eavt-services-section": "workspace:*",
     "@red-cup-engineering/flatfile-resource-graph-service": "workspace:*",
     "@red-cup-engineering/computer-inference-engine": "workspace:*",
-    "@red-cup-engineering/systemd-unit-inventory-observation-service": "workspace:*"
+    "@red-cup-engineering/systemd-unit-inventory-observation-service": "workspace:*",
+    "@red-cup-engineering/node-job-service": "workspace:*",
+    "@red-cup-engineering/javascript-node-services-section": "workspace:*",
+    "@red-cup-engineering/json-services-section": "workspace:*",
+    "@red-cup-engineering/metroplat": "workspace:*"
   },
   "scripts": {
-    "test": "which guile >/dev/null 2>&1 || { echo 'computer-deployment-engine test: guile not found on PATH — the SRFI-64 suite cannot run' >&2; exit 1; }; guile scripts/run-node-worker-tests.scm"
+    "test": "which guile >/dev/null 2>&1 || { echo 'computer-deployment-engine test: guile not found on PATH — the SRFI-64 suite cannot run' >&2; exit 1; }; guile scripts/run-node-worker-tests.scm && node --test test/portable-runtime.test.mjs test/realize-node-job-instance.test.mjs"
   },
   "files": [
     "scripts",
     "src",
     "test",
     "README.md",
-    "package.json"
+    "package.json",
+    "content/text/documents/specifications/native-node-job-instance.md"
   ]
 }

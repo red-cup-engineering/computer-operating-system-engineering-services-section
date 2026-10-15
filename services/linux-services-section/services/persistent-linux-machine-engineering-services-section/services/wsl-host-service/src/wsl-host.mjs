@@ -82,7 +82,8 @@ export function renderHeadroomGuardUnit(g) {
     "",
     "[Service]",
     "Type=simple",
-    `ExecStart=/usr/local/sbin/wsl-hvsock-headroom-guard ${g.minOrder7Blocks} ${g.intervalSeconds} ${g.dropCachesWhenShort ? "yes" : "no"}`,
+    `ExecStart=/usr/local/sbin/wsl-hvsock-headroom-guard ${g.minOrder7Blocks} ${g.intervalSeconds} ${g.dropCachesWhenShort ? "yes" : "no"}` +
+      (g.maxCacheMiB ? ` ${g.maxCacheMiB} ${g.minSecondsBetweenCacheDrops ?? 60}` : ""),
     "Restart=always",
     "RestartSec=5",
     "",
@@ -140,6 +141,9 @@ export function renderDefenderScript(d) {
 }
 
 export function renderPagefileScript(p) {
+  // WSL-19: Windows sizes the pagefile to commit demand, which on a host running a WSL VM beside desktop apps
+  // exceeds physical memory (Bare Cedar Fog 2026-10-14: 35-40 GB committed on 23.3 GB of RAM).
+  if (p.mode === "system") return `# Run from an elevated PowerShell; takes effect after a Windows restart.\n$cs = Get-CimInstance Win32_ComputerSystem\nSet-CimInstance -InputObject $cs -Property @{ AutomaticManagedPagefile = $true }\n`;
   const head = `# Run from an elevated PowerShell; takes effect after a Windows restart.\n$cs = Get-CimInstance Win32_ComputerSystem\nSet-CimInstance -InputObject $cs -Property @{ AutomaticManagedPagefile = $false }\nGet-CimInstance Win32_PageFileSetting | Remove-CimInstance\n`;
   if (p.mode === "none") return head;
   return head + `New-CimInstance -ClassName Win32_PageFileSetting -Property @{ Name = '${p.path}'; InitialSize = ${p.megabytes}; MaximumSize = ${p.megabytes} }\n`;
@@ -222,21 +226,21 @@ export function observeLive(params, sys = { read: (p) => { try { return readFile
   const checks = [];
   for (const f of params.linux.sysctl) for (const e of f.entries) {
     const have = sys.read(`/proc/sys/${e.key.replaceAll(".", "/")}`);
-    checks.push({ name: e.key, want: String(e.value), have, ok: have === String(e.value) });
+    checks.push({ name: e.key, scope: "linux", hook: "sysctl", want: String(e.value), have, ok: have === String(e.value) });
   }
   const re = new RegExp(`^${params.linux.blockQueue.kernel}$`);
   for (const disk of sys.list("/sys/block").filter((d) => re.test(d)))
     for (const [k, v] of Object.entries(params.linux.blockQueue.attributes)) {
       const have = sys.read(`/sys/block/${disk}/queue/${k}`);
-      checks.push({ name: `${disk} queue/${k}`, want: String(v), have, ok: have === String(v) });
+      checks.push({ name: `${disk} queue/${k}`, scope: "linux", hook: "udev", want: String(v), have, ok: have === String(v) });
     }
   const cmd = sys.read("/proc/cmdline") ?? "";
   const kcl = (params.windows.wslConfig.sections.flatMap((s) => s.entries).find((e) => e.key === "kernelCommandLine")?.value ?? "").split(/\s+/).filter(Boolean);
-  for (const tok of kcl) checks.push({ name: `kernel cmdline ${tok}`, want: tok, have: cmd.split(/\s+/).includes(tok) ? tok : null, ok: cmd.split(/\s+/).includes(tok) });
+  for (const tok of kcl) checks.push({ name: `kernel cmdline ${tok}`, scope: "windows", want: tok, have: cmd.split(/\s+/).includes(tok) ? tok : null, ok: cmd.split(/\s+/).includes(tok) });
   for (const g of memoryBudget(params)?.groups ?? [])
     for (const [k, v] of [["high", g.high], ["max", g.max]]) {
       const have = sys.read(`/sys/fs/cgroup/${g.cgroup}/memory.${k}`);
-      checks.push({ name: `${g.name} memory.${k}`, want: String(bytes(v)), have, ok: have === String(bytes(v)) });
+      checks.push({ name: `${g.name} memory.${k}`, scope: "linux", hook: g.cgroup === "non-systemd" ? "agent-limits" : "memory-budget", want: String(bytes(v)), have, ok: have === String(bytes(v)) });
     }
   return checks;
 }
@@ -255,19 +259,24 @@ export function windowsInstruction(plan, params) {
 
 const HOOK_COMMANDS = {
   sysctl: [["sysctl", "--system"]],
-  udev: [["udevadm", "control", "--reload-rules"], ["udevadm", "trigger", "--subsystem-match=block", "--action=change"]],
+  udev: [["udevadm", "control", "--reload-rules"], ["systemctl", "restart", "wsl-block-queue.service"]],
   systemd: [["systemctl", "daemon-reload"], ["systemctl", "enable", "--now", "wsl-agent-limits.path", "wsl-block-queue.service", "wsl-orphan-relay-reaper.timer"]],
   "agent-limits": [["systemctl", "restart", "wsl-agent-limits.service"]],
   "memory-budget": [["systemctl", "daemon-reload"]],
   "headroom-guard": [["systemctl", "daemon-reload"], ["systemctl", "enable", "wsl-hvsock-headroom-guard.service"], ["systemctl", "restart", "wsl-hvsock-headroom-guard.service"]],
 };
 
+/** Existing Linux reload operations needed by mismatched managed live values. */
+export function liveReloadHooks(live) {
+  return [...new Set(live.filter((c) => !c.ok && c.scope === "linux" && Object.hasOwn(HOOK_COMMANDS, c.hook)).map((c) => c.hook))];
+}
+
 /**
- * Writes every file that is not current, then runs the hooks the changed files name, once each.
+ * Writes every file that is not current, then runs each file or live reload hook once.
  * A replaced Windows file is first copied to <name>.<stamp>-before-wsl-host-service.
  * `run` is injected so tests never execute commands; with a staging root no hooks run.
  */
-export function applyPlan(plan, { stamp, run, staged = false }) {
+export function applyPlan(plan, { stamp, run, staged = false, live = [] }) {
   const changed = plan.filter((f) => f.state !== "current");
   for (const f of changed) {
     mkdirSync(dirname(f.path), { recursive: true });
@@ -275,7 +284,7 @@ export function applyPlan(plan, { stamp, run, staged = false }) {
     writeFileSync(f.path, f.content);
     chmodSync(f.path, f.mode);
   }
-  const hooks = [...new Set(changed.flatMap((f) => f.hooks))].filter((h) => HOOK_COMMANDS[h]);
+  const hooks = [...new Set([...changed.flatMap((f) => f.hooks), ...liveReloadHooks(live)])].filter((h) => Object.hasOwn(HOOK_COMMANDS, h));
   const ran = [];
   if (!staged) for (const h of hooks) for (const cmd of HOOK_COMMANDS[h]) { run(cmd); ran.push(cmd.join(" ")); }
   return { written: changed.map((f) => f.path), ran };

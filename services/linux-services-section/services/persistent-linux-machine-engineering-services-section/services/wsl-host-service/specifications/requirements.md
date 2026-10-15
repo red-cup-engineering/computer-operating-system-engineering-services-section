@@ -26,8 +26,11 @@ Each requirement has one shall. Identifiers are stable.
 - WSL-8. When asked to plan on a live host, the service shall also compare the live kernel values (sysctl, block-queue attributes, kernel command line tokens) with the parameters and report each mismatch.
 - WSL-9. When asked to apply, the service shall write only files that are not current, so a second apply writes nothing.
 - WSL-10. When it replaces an existing Windows-side file, the service shall first keep the previous content beside it under a dated name.
-- WSL-11. When files change, the service shall run each reload hook that those files name once (sysctl, udev, systemd daemon reload and enablement, agent limits), and no hook when nothing changed.
+- WSL-11. When files or managed live values drift, the service shall run each corresponding Linux reload hook once, and leave a converged host unchanged.
 - WSL-12. When a boot-time write of a block-queue attribute is refused as busy, the service shall re-send a change event after boot so the limit holds on every disk.
+
+- WSL-17. Apply shall reconcile managed live sysctl, block-queue and memory-budget values even when rendered files are current, using the existing owned hooks.
+- WSL-18. Apply shall receive its result by observing the scoped files and live values again, exiting 0 for convergence and 2 for remaining drift.
 
 ## Boundaries
 
@@ -38,6 +41,8 @@ Each requirement has one shall. Identifiers are stable.
 ## Order
 
 - WSL-16. The owner of the particular values shall be the operations section of the host, and the service shall remain generic engineering, in the order science, engineering, operations.
+- WSL-19. When the record declares a system-managed pagefile, the service shall render a script that returns the pagefile to Windows' automatic management, because a host running a WSL VM beside desktop applications commits more than its physical memory (Bare Cedar Fog, 2026-10-14: 35–40 GB committed on 23.3 GB of RAM), and a host without a pagefile then fails allocations.
+- WSL-20. When the record sets a page-cache ceiling on the headroom guard, the guard shall drop clean page cache whenever the cache exceeds the ceiling, at most once per its minimum interval. A busy VM never goes idle for WSL's `autoMemoryReclaim`, and its cache otherwise holds Windows memory. Bare Cedar Fog, 2026-10-14, under CI: 6.2 GiB of cache held the VM at 9.95 GB with Windows at 98% commit, and one drop returned 4.4 GB to Windows within 20 s.
 
 ## Receiving conditions
 

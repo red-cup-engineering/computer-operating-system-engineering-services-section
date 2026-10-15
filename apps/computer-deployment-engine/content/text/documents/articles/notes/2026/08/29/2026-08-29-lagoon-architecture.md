@@ -1805,15 +1805,43 @@ executed as a test until the Lean bridge makes it a proof. (5) Red-army
 rehearsal as the integration tier: every promotion path has a rehearsal
 that must agree with the eventual live traversal (M9, M10).
 
-**Versioning and migration.** Vocabulary and schema evolve by in-trace
-declaration plus correction records — a migration is world content, not
-a maintenance window. The body evolves by Guix generations: a new
-lagoond realizes beside the old, passes the conformance self-test
-against the live world-root, and takes over the sockets; rollback is
-re-pointing at the previous generation. The conformance fixtures are
-the compatibility contract: any body that folds them identically may
-serve the world, which is also the door through which a Hoot-compiled
-browser body (WO-10 spike) or a future second implementation walks in.
+**Production composition and migration — revised 2026-10-14.** The Leader's
+reductive reconstruction direction governs deployment: LAGOON is the sole
+deployment owner, with ordinary Guix realization and generations underneath.
+The emergency machine-release orchestration, four externally supplied deployment
+receipts, certification, bootstrap and handoff mechanisms leave the production
+path. They are not compatibility requirements for their replacement.
+
+Compose one recorded recursive hierarchy of actual software owners. Preserve
+necessary source generation and consume JavaScript packages through
+`registry.561.group`; Guix package definitions remain pinned channel source.
+Use the authoritative workspace dependency lock directly, without a second
+selected lock or independently assembled `sources.json`/`machine.json` universe.
+Fabricate the coherent composition as a whole, then verify its useful effects.
+
+Guix owns immutable store outputs, profile generations and generation switching.
+A profile is a union: obtain the actual application output from its manifest
+([pinned Guix profile implementation](https://github.com/mthl/guix/blob/4c863218967e6372127bc38a750991bd6d7843d6/guix/profiles.scm)).
+On the existing foreign-Linux hosts, LAGOON's small application adapter activates
+the declared systemd services; Guix System installation is a different operation.
+Restore a known-working generation and its service configuration on failed
+activation only when its state remains compatible or can be restored safely.
+After new durable writes, preserve the data and leave incompatible writers stopped
+rather than lose acknowledged work. A first cutover must preserve the actual prior
+service configuration when no LAGOON generation exists. Profile rollback does not
+undo mutable data.
+
+Keep durable state, credentials, journals and queued ActivityPub messages outside
+the software output. A necessary schema transition belongs to its data owner;
+it must preserve queued work and establish usable state before the new writer
+starts. Keep credentials in their existing protected runtime delivery path.
+Cold Red Gate's actor service has bounded resource demands; eligible expensive
+build, inference, publishing and batch work runs through existing compute owners.
+
+Retire competing implementations, branches and PRs once their replacement is
+established. Retain valuable science and real capabilities. Acceptance means
+messages deliver, articles publish, services operate and resources exchange,
+with fewer dependencies and operating obligations and more available capacity.
 
 ## 5. Adjudications
 

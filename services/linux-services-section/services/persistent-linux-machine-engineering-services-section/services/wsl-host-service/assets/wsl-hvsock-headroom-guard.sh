@@ -7,9 +7,13 @@
 # This watcher compacts on demand when the free count falls below the floor, and drops clean
 # page cache as a second step when compaction alone does not restore it.
 #
-#   wsl-hvsock-headroom-guard <min-order7-blocks> <interval-seconds> <drop-caches:yes|no>
+#   wsl-hvsock-headroom-guard <min-order7-blocks> <interval-seconds> <drop-caches:yes|no> [<max-cache-mib> <min-seconds-between-cache-drops>]
+#
+# WSL-20: with a page-cache ceiling, it also drops clean page cache whenever the cache exceeds the ceiling
+# (at most once per the minimum gap). A busy VM never goes idle for WSL's autoMemoryReclaim, and its cache
+# otherwise pins Windows memory; free-page reporting hands the freed pages back to Windows.
 set -u
-min=${1:-32}; interval=${2:-5}; drop=${3:-yes}
+min=${1:-32}; interval=${2:-5}; drop=${3:-yes}; maxcache=${4:-0}; gap=${5:-60}; lastcache=0
 
 # Free blocks able to hold an order-7 allocation, counted in order-7 units, over all zones.
 free7() {
@@ -29,6 +33,16 @@ while :; do
       echo "order-7 free ${before} < ${min}: compacted to ${after}; dropped clean page cache and compacted to ${final}"
     else
       echo "order-7 free ${before} < ${min}: compacted to ${after}"
+    fi
+  fi
+  if [ "$maxcache" -gt 0 ]; then
+    cached=$(awk '/^Cached:/ { print int($2 / 1024) }' /proc/meminfo)
+    now=$(date +%s)
+    if [ "$cached" -gt "$maxcache" ] && [ $((now - lastcache)) -ge "$gap" ]; then
+      sync
+      echo 1 > /proc/sys/vm/drop_caches
+      echo "page cache ${cached} MiB > ${maxcache} MiB: dropped clean cache to $(awk '/^Cached:/ { print int($2 / 1024) }' /proc/meminfo) MiB"
+      lastcache=$now
     fi
   fi
   sleep "$interval"
