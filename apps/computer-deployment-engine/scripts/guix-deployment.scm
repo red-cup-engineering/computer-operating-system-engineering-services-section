@@ -160,8 +160,10 @@
         (format (current-error-port) "Waiting for existing jobs to finish: ~a~%" busy)
         (sleep 5) (loop)))))
 (define (check-cutover-writers config store)
-  ;; Quiescing a persistent writer is not permission to retire its policy.
-  (let ((declared (append (units store) (configuration-unit-names config))))
+  ;; A writer needs a current declaration or explicit retirement in the target.
+  ;; Merely naming it in the quiescence set never retires its policy.
+  (let ((declared (append (units store) (configuration-unit-names config)
+                          (assoc-ref config 'retired-units))))
     (for-each (lambda (name)
       (when (and (not (member name declared))
                  (not (job-unit? (assoc-ref config 'main-unit) name))
