@@ -1,8 +1,12 @@
 /** LAGOON realizes the explicitly selected instance inside its own Guix output. */
 import { lstatSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
-import { dirname, isAbsolute, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { readInstanceDefinition } from "@red-cup-engineering/metroplat/instance";
+import { parseJsonValue } from "@red-cup-engineering/json-services-section/parse-json-value";
+import { parseJsonPointer, resolveJsonPointer } from "@red-cup-engineering/json-services-section/resolve-json-pointer";
+import { admitModuleParameterizationSources, readModuleParameterizations } from "@red-cup-engineering/javascript-node-services-section/module-closure";
 
 const object = value => value !== null && typeof value === "object" && !Array.isArray(value);
 const relativePath = value => typeof value === "string" && value.length > 0
@@ -12,52 +16,53 @@ const outputPath = value => typeof value === "string" && /^\/gnu\/store\/[^/\0]+
   && resolve(value) === value;
 const token = "{release}";
 
-/** Pure derivation. Only the two complete, typed output references are realized. */
+
+/** Pure derivation of the complete, explicitly bound deployment set. */
 export function realizeNodeJobInstance(source, output, selection) {
   if (typeof source !== "string" || !outputPath(output)) throw new TypeError("node-job realization requires source JSON and the actual top-level Guix output");
   if (!object(selection) || typeof selection.module !== "string"
     || !/^@[^/]+\/[^/]+(?:\/[A-Za-z0-9._-]+)*$/u.test(selection.module)
-    || typeof selection.export !== "string" || !/^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(selection.export))
-    throw new TypeError("node-job realization requires one explicit schedule module/export selection");
-  const instance = JSON.parse(source);
-  if (!object(instance) || instance.version !== 1 || instance.instanceOf !== "@red-cup-engineering/metroplat"
-    || !Array.isArray(instance.scheduleSources)) throw new TypeError("node-job realization requires a MetroPlat instance with schedule sources");
-  const configurations = [];
-  const sources = [...instance.scheduleSources, ...(instance.operationSources ?? [])];
-  let scheduleSources = 0;
-  for (const entry of sources) {
-    if (!object(entry) || entry.module !== selection.module
-      || ![selection.export, "nodeJobOperations"].includes(entry.export)) continue;
-    if (entry.export === selection.export) scheduleSources++;
-    const parameterData = entry.configuration;
-    if (!object(parameterData) || typeof parameterData.law !== "string" || !parameterData.law.trim()
-      || !Array.isArray(parameterData.deploymentRecords) || parameterData.deploymentRecords.length === 0)
-      throw new TypeError("selected node-job sources require their authored law and deployment records");
-    const deployments = new Set();
-    for (const record of parameterData.deploymentRecords) {
-    if (!object(record) || typeof record.deployment !== "string" || !/^[a-z0-9][a-z0-9-]*$/u.test(record.deployment)
-      || deployments.has(record.deployment)
-      || Object.keys(record).some(key => !["deployment", "host", "scope", "jobConfiguration"].includes(key))
-      || typeof record.host !== "string" || !record.host.trim() || !Array.isArray(record.scope) || record.scope.length > 64
-      || record.scope.some(term => typeof term !== "string" || !term.trim() || term.length > 2048)
-      || new Set(record.scope).size !== record.scope.length)
-      throw new TypeError("native job records require authored deployment, host and scope data");
-    deployments.add(record.deployment);
+    || typeof selection.export !== "string" || !/^[A-Za-z_$][A-Za-z0-9_$]*$/u.test(selection.export)
+    || typeof selection.deploymentRecordsPointer !== "string"
+    || !selection.deploymentRecordsPointer.startsWith("/parameterData/")
+    || selection.deploymentRecordsPointer.length > 2048)
+    throw new TypeError("node-job realization requires its explicit schedule selection and parameterData pointer");
+  const instance = parseJsonValue(source);
+  if (!object(instance) || instance.version !== 1 || instance.instanceOf !== "@red-cup-engineering/metroplat")
+    throw new TypeError("node-job realization requires a MetroPlat instance");
+  const pointer = selection.deploymentRecordsPointer;
+  parseJsonPointer(pointer, { allowFragment: false });
+  admitModuleParameterizationSources(instance.operationSources ?? []);
+  admitModuleParameterizationSources(instance.scheduleSources ?? []);
+  const selected = resolveJsonPointer(instance, pointer);
+  if (!object(selected) || typeof selected.law !== "string" || !selected.law.trim()
+    || !Array.isArray(selected.deploymentRecords) || selected.deploymentRecords.length < 1
+    || selected.deploymentRecords.length > 100)
+    throw new TypeError("node-job realization needs bounded authored deployment records and their law");
+  const seen = new Set();
+  for (const record of selected.deploymentRecords) {
+    if (!object(record) || typeof record.deployment !== "string"
+      || !/^[a-z0-9][a-z0-9-]*$/u.test(record.deployment) || seen.has(record.deployment)
+      || typeof record.host !== "string" || !record.host.trim()
+      || !Array.isArray(record.scope) || record.scope.length > 64
+      || new Set(record.scope).size !== record.scope.length
+      || record.scope.some(term => typeof term !== "string" || !term.trim() || term.length > 2048))
+      throw new TypeError("node-job realization needs distinct authored deployments, hosts and scope terms");
+    seen.add(record.deployment);
     const configuration = record.jobConfiguration;
     if (!object(configuration) || configuration.runtimeRoot !== token || configuration.artifact !== token)
-      throw new TypeError("native job runtimeRoot and artifact must each be exactly {release}");
+      throw new TypeError("each native runtimeRoot and artifact must be exactly {release}");
     if (!relativePath(configuration.jobsDirectory) || configuration.jobsDirectory.includes(token)
       || typeof configuration.stateRoot !== "string" || !isAbsolute(configuration.stateRoot)
       || configuration.stateRoot.includes(token) || configuration.stateRoot.includes("\0")
       || typeof configuration.unitPrefix !== "string" || !/^[a-z0-9][a-z0-9-]*$/u.test(configuration.unitPrefix))
-      throw new TypeError("native job declarations require authored relative jobs, absolute state and unit identity");
-    configuration.runtimeRoot = output;
-    configuration.artifact = output;
-    configurations.push(configuration);
-    }
+      throw new TypeError("native job records require authored relative jobs, absolute state and unit identity");
   }
-  if (scheduleSources === 0 || configurations.length === 0) throw new TypeError("selected instance declares no native job schedule parameter data");
-  return { instance, configurations, content: `${JSON.stringify(instance, null, 2)}\n` };
+  for (const record of selected.deploymentRecords) {
+    record.jobConfiguration.runtimeRoot = output;
+    record.jobConfiguration.artifact = output;
+  }
+  return { instance, configurations: selected.deploymentRecords.map(record => record.jobConfiguration) };
 }
 
 function regularPath(root, path) {
@@ -80,7 +85,41 @@ export async function realizeInstalledNodeJobs(output, instancePath, selection) 
   const file = regularPath(output, instancePath);
   const sourceBytes = readFileSync(file);
   const source = new TextDecoder("utf-8", { fatal: true }).decode(sourceBytes);
-  const result = realizeNodeJobInstance(source, output, selection);
+
+  const declaration = await readInstanceDefinition(file, {
+    readFile: (candidate, encoding) => {
+      const path = relative(output, candidate);
+      if (!relativePath(path)) throw new TypeError("node-job profile must stay within the Guix output");
+      return candidate === file ? (encoding === undefined ? sourceBytes : sourceBytes.toString(encoding))
+        : readFileSync(regularPath(output, path), encoding);
+    },
+  });
+  const authored = parseJsonValue(source);
+  const pointer = selection.deploymentRecordsPointer;
+  const rawValue = resolveJsonPointer(authored, pointer);
+  if (rawValue === undefined || JSON.stringify(rawValue) !== JSON.stringify(resolveJsonPointer(declaration, pointer)))
+    throw new TypeError("selected node-job parameter data must be authored by the raw host instance");
+  const result = realizeNodeJobInstance(JSON.stringify(declaration), output, selection);
+  const raw = [...(declaration.operationSources ?? []), ...(declaration.scheduleSources ?? [])];
+  const resolved = await readModuleParameterizations(raw, {
+    moduleBasePath: join(output, "package.json"), sourceDocument: result.instance,
+    readFile: file => readFileSync(file),
+  });
+  const value = resolveJsonPointer(result.instance, pointer);
+  const sharedBinding = index => Object.values(raw[index].parameters ?? {}).some(
+    reference => reference?.instancePointer === pointer);
+  const sameConfiguration = entry => JSON.stringify(entry.configuration) === JSON.stringify(value);
+  const operationCount = (declaration.operationSources ?? []).length;
+  const operations = resolved.filter((entry, index) => index < operationCount
+    && entry.module === selection.module && entry.export === "nodeJobOperations"
+    && sharedBinding(index) && sameConfiguration(entry));
+  const schedules = resolved.filter((entry, index) => index >= operationCount
+    && entry.module === selection.module && entry.export === selection.export
+    && sharedBinding(index) && sameConfiguration(entry));
+  if (operations.length !== 1 || schedules.length !== 1)
+    throw new TypeError("node-job operation and schedule must each bind the same authored deployment-record pointer");
+  result.content = `${JSON.stringify({ ...authored, parameterData: result.instance.parameterData }, null, 2)}\n`;
+
   // Use the same public provider that the installed job factories consume.
   // Its declaration reader is pure: construction does not execute any job.
   const require = createRequire(join(output, "package.json"));
@@ -100,6 +139,6 @@ export async function realizeInstalledNodeJobs(output, instancePath, selection) 
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  if (process.argv.length !== 6) throw new TypeError("usage: realize-node-job-instance.mjs GUIX-OUTPUT INSTANCE-PATH MODULE EXPORT");
-  await realizeInstalledNodeJobs(process.argv[2], process.argv[3], { module: process.argv[4], export: process.argv[5] });
+  if (process.argv.length !== 7) throw new TypeError("usage: realize-node-job-instance.mjs GUIX-OUTPUT INSTANCE-PATH MODULE EXPORT DEPLOYMENT-RECORDS-POINTER");
+  await realizeInstalledNodeJobs(process.argv[2], process.argv[3], { module: process.argv[4], export: process.argv[5], deploymentRecordsPointer: process.argv[6] });
 }

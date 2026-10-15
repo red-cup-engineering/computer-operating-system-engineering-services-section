@@ -98,10 +98,14 @@
               ;; Realize only the explicitly selected native job fields, after
               ;; retaining the exact authored instance in this same output.
               (when #$(and node-job-instance #t)
-                (invoke runtime #$node-job-instance-realizer out
-                  (assoc-ref '#$node-job-instance 'path)
-                  (assoc-ref '#$node-job-instance 'module)
-                  (assoc-ref '#$node-job-instance 'export)))
+                (let ((pointer (assoc-ref '#$node-job-instance 'deployment-records-pointer)))
+                  (unless (and (string? pointer) (not (string-null? pointer)))
+                    (error "native node jobs require their authored deployment-records-pointer"))
+                  (invoke runtime #$node-job-instance-realizer out
+                    (assoc-ref '#$node-job-instance 'path)
+                    (assoc-ref '#$node-job-instance 'module)
+                    (assoc-ref '#$node-job-instance 'export)
+                    pointer)))
               ;; The authored ingress already contains the Caddy configuration;
               ;; realize those bytes in Guix rather than carrying a release envelope.
               (when (file-exists? (string-append out "/deployment/ingress.json"))
