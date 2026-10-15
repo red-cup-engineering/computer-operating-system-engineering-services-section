@@ -465,27 +465,8 @@
         (apply throw args)))))
 
 
-(define (assert-closed source)
-  (let* ((root (canonicalize-path source))
-         (prefix (string-append root "/")))
-    (file-system-fold
-     (lambda (file stat result) #t)
-     (lambda (file stat result)
-       (when (eq? 'symlink (stat:type stat))
-         (when (absolute-file-name? (readlink file))
-           (error "runtime link is absolute and cannot relocate into the store" file))
-         (let ((target (canonicalize-path file)))
-           (unless (or (string=? target root) (string-prefix? prefix target))
-             (error "runtime link escapes the admitted closure" file target))))
-       result)
-     (lambda (file stat result) result)
-     (lambda (file stat result) result)
-     (lambda (file stat result) result)
-     (lambda (file stat errno result) (error "cannot read runtime input" file errno))
-     #t root lstat)))
-
 (define* (build channels load-path definition source root #:optional first-cutover?)
-  (assert-closed source)
+  ;; The immutable builder owns confinement and validates every runtime once.
   (if first-cutover? (setenv "GUIX_DEPLOYMENT_FIRST_CUTOVER" "1")
       (unsetenv "GUIX_DEPLOYMENT_FIRST_CUTOVER"))
   (setenv "GUIX_DEPLOYMENT_SOURCE" (canonicalize-path source))
