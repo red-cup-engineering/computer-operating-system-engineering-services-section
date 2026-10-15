@@ -198,6 +198,26 @@
         (format (current-error-port) "Configured application baseline (health not assumed): ~a~%" store)
         store))))
 
+;; An absent first-generation unit has no configured/running application to
+;; identify historical readers. Use only the actual native manifest's one valid
+;; immutable artifact, after positively establishing that absence. Configured
+;; applications still use their real executable and must match that artifact.
+(define (initial-artifact main held-store)
+  (let ((state (capture "systemctl" "--user" "show" "--property=LoadState" "--value" main)))
+    (if (equal? state "not-found")
+      (begin
+        (unless (and (equal? "0" (capture "systemctl" "--user" "show"
+                              "--property=MainPID" "--value" main))
+                     (not (busy? main)))
+          (error "absent main unit still has a writer or queued job" main))
+        (unless (and held-store (valid-path-syntax? held-store)
+                     (with-store connection (valid-path? connection held-store)))
+          (error "absent initial unit has no valid held native artifact" main))
+        (format (current-error-port)
+          "Absent initial unit: held native artifact supplies historical readers: ~a~%" held-store)
+        held-store)
+      (configured-artifact main))))
+
 ;; Install exactly one existing store output with Guix's ordinary manifest API.
 ;; No candidate receipt, custom generation link, retention ledger or GC writer.
 (define (install-artifact channels profile store scratch)
@@ -384,7 +404,7 @@
       (error "target has no pinned first-cutover source input"))
     (when cutover-work
       (check-cutover-writers config store)
-      (unless (equal? held-store (configured-artifact (assoc-ref config 'main-unit)))
+      (unless (equal? held-store (initial-artifact (assoc-ref config 'main-unit) held-store))
         (error "first-cutover baseline differs from the configured application")))
     (unless cutover-work
       (when (assoc-ref config 'state-check)
