@@ -16,7 +16,10 @@ export async function confinePortableRuntime(path){
   while(pending.length){
     const directory=pending.pop();
     for(const entry of await readdir(directory,{withFileTypes:true})){
-      const file=join(directory,entry.name),stat=await lstat(file);
+      const file=join(directory,entry.name);
+      // readdir already supplies the carrier type on ordinary filesystems.
+      // Avoid one serialized metadata request for every package file.
+      const stat=entry.isFile()||entry.isDirectory()||entry.isSymbolicLink()?entry:await lstat(file);
       if(stat.isSymbolicLink()){
         const link=await readlink(file);
         if(isAbsolute(link))throw new Error('portable link must remain relative when sealed');
