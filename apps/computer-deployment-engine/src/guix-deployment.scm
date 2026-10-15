@@ -3,6 +3,7 @@
 (define-module (guix-deployment)
   #:use-module (guix packages)
   #:use-module (guix gexp)
+  #:use-module ((guix store) #:select (store-path?))
   #:use-module (guix build-system trivial)
   #:use-module (gnu packages node)
   #:use-module (gnu packages bash)
@@ -68,7 +69,9 @@
               ;; The admitted tree is already an immutable Guix input. Retain it
               ;; in the output's closure without copying the entire tree twice.
               (mkdir-p out) (mkdir-p bin) (mkdir-p units)
-              (let ((tree #$(local-file admitted-source "registry-runtime" #:recursive? #t)))
+              (let ((tree #$(if (store-path? admitted-source)
+                               admitted-source
+                               (local-file admitted-source "registry-runtime" #:recursive? #t))))
                 (invoke runtime #$portable-runtime-check tree #$entry)
                 (when (file-exists? (string-append tree "/.guix-systemd"))
                   (error "application contains reserved deployment directory"))
