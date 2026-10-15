@@ -77,6 +77,16 @@ T5. Cycle: if the Kalshi trading-job entry point reaches the 87-package componen
 5. Cold Red Gate generation built from the Kalshi trading-job package only, published to a substitute origin and pulled by Cold Red Gate; until the pull path exists, the workflow `LAGOON deployment` in copy mode is the bootstrap route and needs the Leader to name that action.
 6. The other jobs of Cold Red Gate, then the laptop.
 
+## 6a. Derived outputs belong to the package: the games-host front end
+
+Read from bare-cedar-fog main at 458f88c (release.json beside the unit file of apps/games-host, scripts/receive-browser-assets.mjs, the justfile recipe fabricate): the games-host application (unit games-561-group.service) lists two derived directories, the `dist` of sites/ruinfold.play.561.group and sites/durante.play.561.group, which `scripts/build-browser-assets.mjs` of each site produces; the file release.json of the earlier per-application release runs those two scripts after `the install step and then runs `scripts/receive-browser-assets.mjs`, which starts each game's server on an ephemeral port and fetches `/`, `/play` or `/watch` and every script and stylesheet they name, refusing anything but HTTP 200 of the right media type. The recipe `fabricate`, which is the only recipe the workflow LAGOON deployment runs to produce a generation, has no games-host entry point and runs neither script. Cold Red Gate's ruinfold.561.group and durante.561.group answer 404 at `/` while `/health` and `/daily` answer 200 (census 2026-10-10), which is what a server without its `dist` does.
+
+This is a fault of the code against the method (section 0): a derived output that the running unit needs was a step in a procedure outside the package, so a release could be produced without it. Correct by construction:
+- D1. The games-host package declares `dist` of both sites as outputs of its build phase (the two `build-browser-assets.mjs` scripts run inside the Guix build container, offline, S5).
+- D2. The package's check phase is `receive-browser-assets.mjs`. A package whose check fails is not built, so a generation cannot contain a games-host that answers 404 at `/` (R4 applied to content, K3).
+- D3. The unit's `WorkingDirectory` and `ExecStart` name store paths in that package; there is no `current` symlink into a hand-assembled release folder.
+- T6. Build the games-host package with `dist` deleted from its source: the package recreates it and its check exits 0. Build it with `build-browser-assets.mjs` made to fail: the package build fails. Both are recorded in build records.
+
 ## 7. What this does not do
 
 It does not change the source layout of bare-cedar-fog, and it does not retire the workflow's mode build for the rest of the estate until each target has its own package set. It does not substitute for the mitigation in the incident record, which does not wait for it.
