@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/computer",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "type": "module",
   "description": "Red Cup Engineering's computer: federated EAVT worlds, principals and processes over the EAVT section's evidence fold.",
   "keywords": [
@@ -42,15 +42,16 @@
     "test": "node --test distribution/tests/federate.test.mjs && node --test principal/tests/principal.test.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/metrologic": "workspace:*",
-    "@red-cup-engineering/cbor-services-section": "workspace:*",
-    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/eavt-services-section": "workspace:*",
-    "@red-cup-engineering/json-services-section": "workspace:*",
-    "@red-cup-engineering/signgraph": "workspace:*",
-    "@red-cup-engineering/signcell": "workspace:*"
-  }
+    "@red-cup-engineering/metrologic": "0.4.0",
+    "@red-cup-engineering/cbor-services-section": "0.1.1",
+    "@red-cup-engineering/computer-data-engineering-services-section": "0.2.0",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "0.3.1",
+    "@red-cup-engineering/eavt-services-section": "0.11.0",
+    "@red-cup-engineering/json-services-section": "0.4.0",
+    "@red-cup-engineering/signgraph": "0.1.0",
+    "@red-cup-engineering/signcell": "0.2.0",
+    "@red-cup-engineering/computer-code-engineering-services-section": "0.1.2",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "0.1.2"
+  },
+  "private": false
 }
