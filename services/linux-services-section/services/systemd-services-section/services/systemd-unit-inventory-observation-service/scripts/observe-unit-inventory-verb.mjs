@@ -29,5 +29,9 @@ observeUnitInventoryVerb.spec = {
   refusal: REFUSAL_SCHEMA,
 };
 observeUnitInventoryVerb.effects = ["process:execute"];
+// Observing a machine is a control-plane act: the generic server serves it only for a call whose
+// frame carries an admitted controlCommand for this effect (computer-system-engine's per-verb
+// admission). It was so in the retired lagoon eavt-worker; the gate is now declared by the owner.
+observeUnitInventoryVerb.admission = { effect: "machine:observe" };
 
 export { observeUnitInventoryVerb as "observe-unit-inventory" };
