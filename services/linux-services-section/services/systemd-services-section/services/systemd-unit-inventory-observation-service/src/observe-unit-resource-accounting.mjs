@@ -9,17 +9,20 @@ export const RESOURCE_ACCOUNTING_PROPERTIES = Object.freeze([
   "CPUAccounting",
   "MemoryAccounting",
   "IPAccounting",
+  "IOAccounting",
   "CPUUsageNSec",
   "MemoryPeak",
   "MemoryCurrent",
   "IPIngressBytes",
   "IPEgressBytes",
+  "IOReadBytes",
+  "IOWriteBytes",
   "ActiveEnterTimestamp",
   "ExecMainStartTimestamp",
 ]);
 
 const UNKNOWN_TOKENS = new Set(["[no data]", "[not set]", ""]);
-const BOOLEAN_PROPERTIES = new Set(["CPUAccounting", "MemoryAccounting", "IPAccounting"]);
+const BOOLEAN_PROPERTIES = new Set(["CPUAccounting", "MemoryAccounting", "IPAccounting", "IOAccounting"]);
 
 function parseShowOutput(text) {
   const properties = {};
@@ -68,7 +71,7 @@ function typedProperty(name, raw) {
 
 /**
  * Read-only resource-accounting properties for one unit on one host.
- * Cumulative counters (CPUUsageNSec, IPIngressBytes, IPEgressBytes) and the
+ * Cumulative counters (CPUUsageNSec, IPIngressBytes, IPEgressBytes, IOReadBytes, IOWriteBytes) and the
  * MemoryPeak high-water mark are reported as decimal-string values, never
  * JS numbers, so no precision is lost differencing two observations later.
  * @param {string} host - "local" or a bare SSH destination.

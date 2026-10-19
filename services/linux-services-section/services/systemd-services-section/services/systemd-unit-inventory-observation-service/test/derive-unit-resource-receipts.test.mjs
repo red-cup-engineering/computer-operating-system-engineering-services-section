@@ -108,3 +108,42 @@ test("a receipt's price shape is exactly what derive-inference-pnl.mjs's accumul
   assert.equal(typeof receipt.provider, "string");
   assert.equal(typeof receipt.actor, "string");
 });
+
+
+test("block-I/O byte counters produce exact separate disk readings, not money or inferred per-second rates", () => {
+  const source = { host: "cold-red-gate", unit: "feed-arrivals.service",
+    observedAt: "2026-10-18T20:03:00.000Z", cpuNsec: "100", activeEnterTimestamp: INCARNATION };
+  const before = observation(source);
+  const after = observation({ ...source, observedAt: "2026-10-18T20:04:00.000Z", cpuNsec: "200" });
+  before.properties.IOReadBytes = known("9007199254740993");
+  after.properties.IOReadBytes = known("9007199254741993");
+  before.properties.IOWriteBytes = known("2");
+  after.properties.IOWriteBytes = known("17");
+  const receipts = deriveUnitResourceReceipts(before, after);
+  const disk = receipts.filter((r) => r.price.denomination.asset.startsWith("disk-"));
+  assert.deepEqual(disk.map((r) => [r.price.denomination.asset, r.price.amount]), [
+    ["disk-read-bytes", { numerator: "1000", denominator: "1" }],
+    ["disk-write-bytes", { numerator: "15", denominator: "1" }],
+  ]);
+  assert.equal(disk.every((r) => r.intervalStart === before.observedAt &&
+    r.intervalEnd === after.observedAt), true);
+  after.properties.IOWriteBytes = unknown;
+  assert.equal(deriveUnitResourceReceipts(before, after).filter((r) =>
+    r.price.denomination.asset.startsWith("disk-")).length, 1);
+});
+
+test("I/O resets, backwards or forged noncanonical counters never become fabricated usage", () => {
+  const sample = (t, incarnation, n) => {
+    const x = observation({ host: "h", unit: "u.service", observedAt: t,
+      activeEnterTimestamp: incarnation });
+    x.properties.IOReadBytes = known(n);
+    return x;
+  };
+  const older = sample("t0", "incarnation-one", "100");
+  const restarted = sample("t1", "incarnation-two", "2");
+  assert.equal(deriveUnitResourceReceipts(older, restarted).length, 0);
+  assert.throws(() => deriveUnitResourceReceipts(older, sample("t1", "incarnation-one", "2")),
+    /went backwards/u);
+  assert.throws(() => deriveUnitResourceReceipts(older, sample("t1", "incarnation-one", "00")),
+    /exact unsigned decimal/u);
+});
