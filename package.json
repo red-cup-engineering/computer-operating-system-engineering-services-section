@@ -16,5 +16,9 @@
   "dependencies": {
     "@red-cup-engineering/eavt-services-section": "workspace:*",
     "@red-cup-engineering/systemd-unit-inventory-observation-service": "workspace:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-operating-system-services-section.git"
   }
 }
