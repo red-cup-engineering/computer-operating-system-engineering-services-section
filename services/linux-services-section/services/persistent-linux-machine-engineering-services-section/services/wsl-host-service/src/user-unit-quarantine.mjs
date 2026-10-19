@@ -160,7 +160,7 @@ export function releaseQuarantine(parameters, native = nativeQuarantinePort()) {
   if (unit.MainPID !== '0' || unit.ControlPID !== '0' || (unit.Job && unit.Job !== '0') || !['inactive', 'failed'].includes(unit.ActiveState)) fail('replacement unit not held terminal');
   const argv = /(?:^|;\s*)argv\[\]=([^;]+)\s*;/.exec(unit.ExecStart || '')?.[1]?.trim().split(/\s+/);
   same(argv, r.execStart, 'selected native command');
-  if (!Array.isArray(argv) || argv.length !== 2 || argv[0] !== join(r.artifactRoot, 'bin/node') || argv[1] !== join(r.artifactRoot, 'node_modules/@red-cup-engineering/computer-deployment-engine/scripts/release-on-landing.mjs')) fail('command outside received product');
+  if (!Array.isArray(argv) || argv.length !== 2 || argv[0] !== realpathSync(join(r.artifactRoot, 'bin/node')) || argv[1] !== join(r.artifactRoot, 'node_modules/@red-cup-engineering/computer-deployment-engine/scripts/release-on-landing.mjs')) fail('command outside received product');
   if (!native.cohortTerminal(held.marker.original.controlGroup)) fail('old hierarchical cohort remains populated');
   const cdeHolds = p.profile + '.lagoon-unit-holds';
   if (existsSync(cdeHolds) && readdirSync(cdeHolds).length) fail('unresolved native controller hold');
