@@ -134,15 +134,15 @@ test("serviceUnitNames unions list-units with list-unit-files, including a stati
 
 test("systemd I/O accounting properties preserve exact disk counters and unknowns", () => {
   const calls = [];
-  const output = SHOW_OUTPUT.replace("IPAccounting=no", "IPAccounting=no\\nIOAccounting=yes")
-    .replace("IPEgressBytes=[no data]", "IPEgressBytes=[no data]\\nIOReadBytes=9007199254740993\\nIOWriteBytes=7");
+  const output = SHOW_OUTPUT.replace("IPAccounting=no", "IPAccounting=no\nIOAccounting=yes")
+    .replace("IPEgressBytes=[no data]", "IPEgressBytes=[no data]\nIOReadBytes=9007199254740993\nIOWriteBytes=7");
   const row = observeUnitResourceAccounting("local", "feed-arrivals.service", { run: fakeRun(calls, output) });
   assert.deepEqual(row.properties.IOAccounting, { known: true, value: true });
   assert.deepEqual(row.properties.IOReadBytes, { known: true, value: "9007199254740993" });
   assert.deepEqual(row.properties.IOWriteBytes, { known: true, value: "7" });
   assert.equal(calls[0].args[3].includes("IOReadBytes,IOWriteBytes"), true);
   const absent = observeUnitResourceAccounting("local", "idle.service", {
-    run: fakeRun([], "Id=idle.service\\nIOReadBytes=[no data]\\nIOWriteBytes=[not set]\\n"),
+    run: fakeRun([], "Id=idle.service\nIOReadBytes=[no data]\nIOWriteBytes=[not set]\n"),
   });
   assert.deepEqual(absent.properties.IOReadBytes, { known: false, value: null });
   assert.deepEqual(absent.properties.IOWriteBytes, { known: false, value: null });

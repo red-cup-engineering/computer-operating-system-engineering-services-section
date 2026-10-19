@@ -147,3 +147,21 @@ test("I/O resets, backwards or forged noncanonical counters never become fabrica
   assert.throws(() => deriveUnitResourceReceipts(older, sample("t1", "incarnation-one", "00")),
     /exact unsigned decimal/u);
 });
+
+
+test("duplicate unit rows cannot double-count the same CPU/network/disk source interval", () => {
+  const before = observation({ host: "h", unit: "unit.service", observedAt: "t0",
+    cpuNsec: "1", activeEnterTimestamp: INCARNATION });
+  const after = observation({ host: "h", unit: "unit.service", observedAt: "t1",
+    cpuNsec: "1000000001", activeEnterTimestamp: INCARNATION });
+  before.properties.IOReadBytes = known("17");
+  after.properties.IOReadBytes = known("117");
+  const once = deriveSetOfUnitResourceReceipts([before], [after]);
+  assert.deepEqual(deriveSetOfUnitResourceReceipts([before, before], [after, after]), once);
+  assert.equal(once.filter((receipt) => receipt.price.denomination.asset === "disk-read-bytes").length, 1);
+  const conflicting = { ...before, properties: { ...before.properties, IOReadBytes: known("18") } };
+  assert.throws(() => deriveSetOfUnitResourceReceipts([before, conflicting], [after]),
+    /contradictory observations/u);
+  assert.throws(() => deriveSetOfUnitResourceReceipts([before], [after, { ...after, observedAt: "t2" }]),
+    /contradictory observations/u);
+});
