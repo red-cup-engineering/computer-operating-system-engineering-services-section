@@ -65,6 +65,23 @@ its backing VHDX. A declared overhead allowance is an estimate, not an allocatio
 reservation or a mathematical bound on arbitrary writes. Existing Windows-side
 maintenance remains a separately authorized owner action under WSL-14.
 
+## Scoped offline maintenance
+
+- WSL-28. A compaction carrier shall select exactly the existing record's registered distribution, VHDX and backing volume without enumerating alternative disks.
+- WSL-29. A compaction carrier shall require the host owner's received maintenance admission referencing the affected original work and its checkpoints before any effect.
+- WSL-30. A compaction carrier shall refuse unless the actual Windows administrator and the distribution owner's registry-hive identity are independently established.
+- WSL-31. A compaction carrier shall require the selected disk already detached or read-only without stopping, starting or shutting down any distribution itself.
+- WSL-32. A compaction carrier shall revalidate the registered target, native file identity and backing volume immediately before its one scoped operation and after its outcome.
+- WSL-33. A compaction carrier shall retain its original admission, exact invocation, bounded native outcome and before/after observations in Windows-owned custody outside the target VHDX.
+- WSL-34. A compaction carrier shall use an explicitly admitted finite operation and evidence allocation without changing the fabrication reserve policy.
+- WSL-35. A timed-out, interrupted or ambiguous maintenance outcome shall remain unknown until its original disk and native operation are reconciled.
+- WSL-36. Reopening fabrication shall require a fresh ordinary owner-context capacity join and the original byte/inode and physical-backing admission.
+- WSL-37. Maintenance admission shall require durable boot and reentry holds for affected frozen or otherwise held work before the distribution can stop.
+
+These requirements do not authorize compaction, elevation, a shutdown, a new
+principal, a scheduler or an automatic cleanup hook. The existing all-distro
+rendering does not meet them and is not an admitted incident response.
+
 1. `plan` against the host's record exits 0 on a converged host and 2 on drift, naming the files.
 2. `apply` run twice writes nothing the second time.
 3. Removing MetroPlat from the host changes neither result.
