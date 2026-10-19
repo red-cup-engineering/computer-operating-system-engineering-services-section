@@ -7,13 +7,17 @@
 # This watcher compacts on demand when the free count falls below the floor, and drops clean
 # page cache as a second step when compaction alone does not restore it.
 #
-#   wsl-hvsock-headroom-guard <min-order7-blocks> <interval-seconds> <drop-caches:yes|no> [<max-cache-mib> <min-seconds-between-cache-drops>]
+#   wsl-hvsock-headroom-guard <min-order7-blocks> <interval-seconds> <drop-caches:yes|no> [<max-cache-mib> <min-seconds-between-cache-drops> [<reclaim-cgroups>]]
 #
 # WSL-20: with a page-cache ceiling, it also drops clean page cache whenever the cache exceeds the ceiling
 # (at most once per the minimum gap). A busy VM never goes idle for WSL's autoMemoryReclaim, and its cache
 # otherwise pins Windows memory; free-page reporting hands the freed pages back to Windows.
+# WSL-22: <reclaim-cgroups> is a colon-separated list of cgroups under /sys/fs/cgroup. The excess is taken from
+# each in turn through memory.reclaim, which evicts that cgroup's coldest pages, before the guard falls back to
+# dropping all clean cache, which also evicts the hot executables of interactive programs.
 set -u
-min=${1:-32}; interval=${2:-5}; drop=${3:-yes}; maxcache=${4:-0}; gap=${5:-60}; lastcache=0
+min=${1:-32}; interval=${2:-5}; drop=${3:-yes}; maxcache=${4:-0}; gap=${5:-60}; reclaim=${6:-}; lastcache=0
+cachedmib() { awk '/^Cached:/ { print int($2 / 1024) }' /proc/meminfo; }
 
 # Free blocks able to hold an order-7 allocation, counted in order-7 units, over all zones.
 free7() {
@@ -36,12 +40,25 @@ while :; do
     fi
   fi
   if [ "$maxcache" -gt 0 ]; then
-    cached=$(awk '/^Cached:/ { print int($2 / 1024) }' /proc/meminfo)
+    cached=$(cachedmib)
     now=$(date +%s)
     if [ "$cached" -gt "$maxcache" ] && [ $((now - lastcache)) -ge "$gap" ]; then
-      sync
-      echo 1 > /proc/sys/vm/drop_caches
-      echo "page cache ${cached} MiB > ${maxcache} MiB: dropped clean cache to $(awk '/^Cached:/ { print int($2 / 1024) }' /proc/meminfo) MiB"
+      start=$cached; took=""
+      for cg in $(echo "$reclaim" | tr ':' ' '); do
+        [ "$cached" -gt "$maxcache" ] || break
+        f=/sys/fs/cgroup/$cg/memory.reclaim
+        [ -w "$f" ] || continue
+        # A partial reclaim returns EAGAIN; the re-read below decides what happens next.
+        echo "$(( (cached - maxcache) * 1048576 )) swappiness=0" > "$f" 2>/dev/null || :
+        cached=$(cachedmib); took="$took $cg"
+      done
+      if [ "$cached" -gt "$maxcache" ]; then
+        sync
+        echo 1 > /proc/sys/vm/drop_caches
+        echo "page cache ${start} MiB > ${maxcache} MiB: reclaimed from${took:- nothing} to ${cached} MiB; dropped clean cache to $(cachedmib) MiB"
+      else
+        echo "page cache ${start} MiB > ${maxcache} MiB: reclaimed from${took} to ${cached} MiB"
+      fi
       lastcache=$now
     fi
   fi

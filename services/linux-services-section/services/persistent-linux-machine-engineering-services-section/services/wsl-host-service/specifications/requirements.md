@@ -44,6 +44,14 @@ Each requirement has one shall. Identifiers are stable.
 - WSL-19. When the record declares a system-managed pagefile, the service shall render a script that returns the pagefile to Windows' automatic management, because a host running a WSL VM beside desktop applications commits more than its physical memory (Bare Cedar Fog, 2026-10-14: 35–40 GB committed on 23.3 GB of RAM), and a host without a pagefile then fails allocations.
 - WSL-20. When the record sets a page-cache ceiling on the headroom guard, the guard shall drop clean page cache whenever the cache exceeds the ceiling, at most once per its minimum interval. A busy VM never goes idle for WSL's `autoMemoryReclaim`, and its cache otherwise holds Windows memory. Bare Cedar Fog, 2026-10-14, under CI: 6.2 GiB of cache held the VM at 9.95 GB with Windows at 98% commit, and one drop returned 4.4 GB to Windows within 20 s.
 
+## Memory that stays resident
+
+Bare Cedar Fog, 2026-10-18 (operations record `observed-2026-10-18`): the agent cgroup sat at its 3 GiB `memory.high` with 2.05 GB of anonymous memory and its whole 256 MiB swap allowance used, so reclaim could take only file pages. Those were the agents' own executables (Claude Code's 268 MB binary, VS Code's `node`, the Copilot runtime) and the Codex app-server's SQLite pages: 12.4 GiB of refaults a minute at the cgroup's read cap, about 330 throttle events a second, and trivial commands stalled for minutes. The VM had 3.7 GB free. The kernel has no MGLRU, so nothing protects a working set that its budget cannot hold.
+
+- WSL-21. When the record declares an in-memory compressed swap device, the service shall create it at boot at a priority above every disk swap, and count its pool limit in the memory budget. Idle anonymous memory then shrinks in RAM instead of evicting the executables beside it, and swap stops depending on the disk path through `hv_storvsc` that crashed the VM on 2026-10-05.
+- WSL-22. When the record names reclaim cgroups for the headroom guard, the guard shall take page cache above its ceiling from those cgroups in order, through `memory.reclaim`, and drop clean cache VM-wide only if the cache is still above the ceiling. On 2026-10-18, 1.9 GB of the 2.3–2.9 GB of cache belonged to batch commands in a user slice, and a VM-wide drop evicts the interactive programs' hot pages with it.
+- WSL-23. The agent-limits helper shall apply the swap I/O ceiling only to a disk-backed swap device.
+
 ## Receiving conditions
 
 - WSL-24. The capacity command shall join the current WSL distribution and Linux destination devices to the exact registry-declared VHDX and Windows backing volume identified in the host record.
@@ -61,3 +69,4 @@ maintenance remains a separately authorized owner action under WSL-14.
 2. `apply` run twice writes nothing the second time.
 3. Removing MetroPlat from the host changes neither result.
 4. The live checks of WSL-8 pass on every disk after a fresh WSL boot, without a manual command.
+5. With a declared compressed swap device, `plan` reports it active at its priority after a fresh WSL boot, and `/proc/swaps` lists it above the disk swap.

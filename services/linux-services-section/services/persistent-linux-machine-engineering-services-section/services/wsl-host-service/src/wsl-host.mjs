@@ -84,9 +84,27 @@ export function renderHeadroomGuardUnit(g) {
     "[Service]",
     "Type=simple",
     `ExecStart=/usr/local/sbin/wsl-hvsock-headroom-guard ${g.minOrder7Blocks} ${g.intervalSeconds} ${g.dropCachesWhenShort ? "yes" : "no"}` +
-      (g.maxCacheMiB ? ` ${g.maxCacheMiB} ${g.minSecondsBetweenCacheDrops ?? 60}` : ""),
+      (g.maxCacheMiB ? ` ${g.maxCacheMiB} ${g.minSecondsBetweenCacheDrops ?? 60}` + (g.reclaimCgroups?.length ? ` ${g.reclaimCgroups.join(":")}` : "") : ""),
     "Restart=always",
     "RestartSec=5",
+    "",
+    "[Install]",
+    "WantedBy=multi-user.target",
+    "",
+  ].join("\n");
+}
+
+/** WSL-21: a boot-time oneshot that creates the in-memory compressed swap device above the disk swap. */
+export function renderZramSwapUnit(z) {
+  return [
+    "[Unit]",
+    `Description=${z.description}`,
+    "After=local-fs.target",
+    "",
+    "[Service]",
+    "Type=oneshot",
+    "RemainAfterExit=yes",
+    `ExecStart=/usr/local/sbin/wsl-zram-swap ${z.disksize} ${z.memLimit} ${z.algorithm} ${z.priority}`,
     "",
     "[Install]",
     "WantedBy=multi-user.target",
@@ -121,9 +139,11 @@ export function memoryBudget(params) {
   const vm = bytes(params.windows.wslConfig.sections.flatMap((s) => s.entries).find((e) => e.key === "memory")?.value);
   const agent = Object.fromEntries(params.linux.agentLimits.defaults.entries.map((e) => [e.key, e.value]));
   const groups = [{ name: "non-systemd agents", cgroup: "non-systemd", high: agent.MEMORY_HIGH, max: agent.MEMORY_MAX }, ...b.units.map((u) => ({ name: u.unit, cgroup: u.cgroup, high: u.high, max: u.max }))];
-  const highs = groups.reduce((sum, g) => sum + bytes(g.high), 0), limit = vm - bytes(b.kernelHeadroom);
-  if (highs > limit) throw new Error(`memory budget: high-water marks sum to ${highs} bytes, above the ${limit} the VM leaves after ${b.kernelHeadroom} of kernel headroom`);
-  return { vm, limit, highs, groups };
+  // WSL-21: the compressed swap pool is memory no cgroup is charged for, so its limit is a mark of its own.
+  const zram = params.linux.zramSwap ? bytes(params.linux.zramSwap.memLimit) : 0;
+  const highs = groups.reduce((sum, g) => sum + bytes(g.high), 0) + zram, limit = vm - bytes(b.kernelHeadroom);
+  if (highs > limit) throw new Error(`memory budget: high-water marks${zram ? " and the zram pool" : ""} sum to ${highs} bytes, above the ${limit} the VM leaves after ${b.kernelHeadroom} of kernel headroom`);
+  return { vm, limit, highs, groups, zram };
 }
 
 /** A systemd drop-in that bounds one slice or service. */
@@ -194,6 +214,11 @@ export function renderFiles(params, root = "") {
   if (memoryBudget(params))
     for (const u of L.memoryBudget.units) linux(`/etc/systemd/system/${u.unit}.d/90-wsl-host-memory.conf`, renderMemoryDropIn(u), 0o644, ["memory-budget"]);
 
+  if (L.zramSwap) {
+    linux("/usr/local/sbin/wsl-zram-swap", asset("wsl-zram-swap.sh"), 0o755, ["zram-swap"]);
+    linux("/etc/systemd/system/wsl-zram-swap.service", renderZramSwapUnit(L.zramSwap), 0o644, ["zram-swap"]);
+  }
+
   if (L.headroomGuard) {
     linux("/usr/local/sbin/wsl-hvsock-headroom-guard", asset("wsl-hvsock-headroom-guard.sh"), 0o755, ["headroom-guard"]);
     linux("/etc/systemd/system/wsl-hvsock-headroom-guard.service", renderHeadroomGuardUnit(L.headroomGuard), 0o644, ["systemd", "headroom-guard"]);
@@ -235,6 +260,12 @@ export function observeLive(params, sys = { read: (p) => { try { return readFile
       const have = sys.read(`/sys/block/${disk}/queue/${k}`);
       checks.push({ name: `${disk} queue/${k}`, scope: "linux", hook: "udev", want: String(v), have, ok: have === String(v) });
     }
+  const z = params.linux.zramSwap;
+  if (z) {
+    const line = (sys.read("/proc/swaps") ?? "").split("\n").find((l) => l.startsWith("/dev/zram0"));
+    const have = line ? `active priority ${line.trim().split(/\s+/)[4]}` : null, want = `active priority ${z.priority}`;
+    checks.push({ name: "zram0 swap", scope: "linux", hook: "zram-swap", want, have, ok: have === want });
+  }
   const cmd = sys.read("/proc/cmdline") ?? "";
   const kcl = (params.windows.wslConfig.sections.flatMap((s) => s.entries).find((e) => e.key === "kernelCommandLine")?.value ?? "").split(/\s+/).filter(Boolean);
   for (const tok of kcl) checks.push({ name: `kernel cmdline ${tok}`, scope: "windows", want: tok, have: cmd.split(/\s+/).includes(tok) ? tok : null, ok: cmd.split(/\s+/).includes(tok) });
@@ -265,6 +296,7 @@ const HOOK_COMMANDS = {
   "agent-limits": [["systemctl", "restart", "wsl-agent-limits.service"]],
   "memory-budget": [["systemctl", "daemon-reload"]],
   "headroom-guard": [["systemctl", "daemon-reload"], ["systemctl", "enable", "wsl-hvsock-headroom-guard.service"], ["systemctl", "restart", "wsl-hvsock-headroom-guard.service"]],
+  "zram-swap": [["systemctl", "daemon-reload"], ["systemctl", "enable", "wsl-zram-swap.service"], ["systemctl", "restart", "wsl-zram-swap.service"]],
 };
 
 /** Existing Linux reload operations needed by mismatched managed live values. */
