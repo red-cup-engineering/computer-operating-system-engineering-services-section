@@ -10,7 +10,8 @@ echo "$SWAP_MAX"    > $cg/memory.swap.max
 echo "$PIDS_MAX"    > $cg/pids.max
 echo "$CPU_WEIGHT"  > $cg/cpu.weight
 dev() { lsblk -dno MAJ:MIN "$1" 2>/dev/null | tr -d ' '; }
-root=$(dev "$(findmnt -no SOURCE /)"); swap=$(dev "$(swapon --show=NAME --noheadings | head -1)")
+# WSL-23: bound only the disk swap; an in-memory (zram) device has no disk traffic to bound.
+root=$(dev "$(findmnt -no SOURCE /)"); swap=$(dev "$(swapon --show=NAME --noheadings | grep -v zram | head -1)")
 [ -n "$root" ] && echo "$root $IO_MAX_ROOT" > $cg/io.max
 [ -n "$swap" ] && echo "$swap $IO_MAX_SWAP" > $cg/io.max
 echo "non-systemd: high=$(cat $cg/memory.high) max=$(cat $cg/memory.max) swap=$(cat $cg/memory.swap.max) pids=$(cat $cg/pids.max) io=[$(tr '\n' ';' < $cg/io.max)]"

@@ -3,12 +3,18 @@ import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { applyPlan, bytes, memoryBudget, observeLive, planFiles, renderFiles, renderHeadroomGuardUnit, renderIni, renderPagefileScript, renderSysctl, renderUdev } from "../src/wsl-host.mjs";
+import { applyPlan, bytes, liveReloadHooks, memoryBudget, observeLive, planFiles, renderFiles, renderHeadroomGuardUnit, renderIni, renderPagefileScript, renderSysctl, renderUdev, renderZramSwapUnit } from "../src/wsl-host.mjs";
 
 test("the headroom guard takes a page-cache ceiling only when the record sets one (WSL-20)", () => {
   const g = { description: "d", minOrder7Blocks: 32, intervalSeconds: 5, dropCachesWhenShort: true };
   assert.match(renderHeadroomGuardUnit(g), /ExecStart=\/usr\/local\/sbin\/wsl-hvsock-headroom-guard 32 5 yes\n/);
   assert.match(renderHeadroomGuardUnit({ ...g, maxCacheMiB: 3072, minSecondsBetweenCacheDrops: 60 }), /ExecStart=\/usr\/local\/sbin\/wsl-hvsock-headroom-guard 32 5 yes 3072 60\n/);
+});
+
+test("the headroom guard passes its reclaim cgroups in record order (WSL-22)", () => {
+  const g = { description: "d", minOrder7Blocks: 32, intervalSeconds: 5, dropCachesWhenShort: true, maxCacheMiB: 3072, minSecondsBetweenCacheDrops: 60 };
+  assert.match(renderHeadroomGuardUnit({ ...g, reclaimCgroups: ["user.slice/a.slice", "user.slice", "non-systemd"] }), /guard 32 5 yes 3072 60 user\.slice\/a\.slice:user\.slice:non-systemd\n/);
+  assert.match(renderHeadroomGuardUnit({ ...g, reclaimCgroups: [] }), /guard 32 5 yes 3072 60\n/);
 });
 
 test("a system-managed pagefile hands sizing back to Windows and removes no setting by hand (WSL-19)", () => {
@@ -98,6 +104,38 @@ test("the memory budget bounds every systemd unit it names and leaves the kernel
   // 6GB VM less 2G headroom leaves 4G of high-water marks; 3G of agents plus 1.5G overruns it.
   assert.throws(() => renderFiles(budgeted("3G", units)), /memory budget: high-water marks sum/);
   assert.equal(renderFiles(params).filter((f) => f.path.endsWith("90-wsl-host-memory.conf")).length, 0);
+});
+
+const zram = { description: "z", disksize: "2G", memLimit: "512M", algorithm: "lzo-rle", priority: 100 };
+
+test("a declared compressed swap device renders its helper and unit, and counts its pool in the budget (WSL-21)", () => {
+  assert.equal(renderFiles(params).filter((f) => f.path.includes("zram")).length, 0);
+  const z = { ...budgeted("2G", units), linux: { ...budgeted("2G", units).linux, zramSwap: zram } };
+  const files = renderFiles(z);
+  const unit = files.find((f) => f.path === "/etc/systemd/system/wsl-zram-swap.service");
+  assert.match(unit.content, /ExecStart=\/usr\/local\/sbin\/wsl-zram-swap 2G 512M lzo-rle 100\n/);
+  assert.match(renderZramSwapUnit(zram), /RemainAfterExit=yes/);
+  const helper = files.find((f) => f.path === "/usr/local/sbin/wsl-zram-swap");
+  assert.equal(helper.mode, 0o755);
+  assert.match(helper.content, /swapon -p "\$prio" \/dev\/zram0/);
+  assert.ok(unit.hooks.includes("zram-swap") && helper.hooks.includes("zram-swap"));
+  assert.equal(memoryBudget(z).zram, 512 * 2 ** 20);
+  assert.equal(memoryBudget(z).highs, 2 * 2 ** 30 + 2 ** 30 + 512 * 2 ** 20 + 512 * 2 ** 20);
+  // 6GB VM less 2G headroom leaves 4G: 2.5G of agents, 1.5G of units and the pool overrun it.
+  const over = { ...budgeted("2560M", units), linux: { ...budgeted("2560M", units).linux, zramSwap: zram } };
+  assert.throws(() => renderFiles(over), /high-water marks and the zram pool sum/);
+});
+
+test("the live check reports the compressed swap device and its priority (WSL-21)", () => {
+  const z = { ...params, linux: { ...params.linux, zramSwap: zram } };
+  const swaps = (s) => ({ read: (p) => (p === "/proc/swaps" ? s : null), list: () => [] });
+  const header = "Filename Type Size Used Priority\n/dev/sdc partition 3145728 0 -2";
+  const off = observeLive(z, swaps(header)).find((c) => c.name === "zram0 swap");
+  assert.equal(off.ok, false);
+  assert.deepEqual(liveReloadHooks([off]), ["zram-swap"]);
+  const on = observeLive(z, swaps(`${header}\n/dev/zram0 partition 2097148 0 100`)).find((c) => c.name === "zram0 swap");
+  assert.equal(on.ok, true);
+  assert.equal(observeLive(params, swaps(header)).some((c) => c.name === "zram0 swap"), false);
 });
 
 test("the live check reads each budgeted cgroup's high and max", () => {
