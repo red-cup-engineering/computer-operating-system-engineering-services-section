@@ -131,8 +131,11 @@ policies and automatic desktop launches must not admit it during recovery.
 Disabling enablement alone does not stop a Wanted unit. Do not promise to
 re-freeze it after boot.
 
-The future compactor runs from an independently qualified native Windows
-administrator session outside the affected distribution. It performs no
+The selected DiskPart/attach-based compactor runs from an independently qualified
+native Windows administrator session outside the affected distribution. This is
+that adapter's privilege contract, not a claim that every Windows compaction API
+requires elevation. A different CompactVirtualDisk adapter would need its own
+source/native qualification and caller-context authority; none is selected here. It performs no
 `wsl --shutdown`, termination, distribution launch or restart. The owner first
 admits the affected-work checkpoint, then arranges the exact disk's offline
 state through the existing maintenance resource. A distribution-scoped stop
@@ -196,6 +199,60 @@ requires a dynamic disk that is detached or read-only, and distinguishes
 [one-distribution termination from whole-VM shutdown](https://learn.microsoft.com/en-us/windows/wsl/basic-commands#shutdown).
 Those APIs establish operation scope, not this enterprise's maintenance
 authority or a guaranteed reclamation result.
+
+## Durable user-unit quarantine
+
+The optional `linux.userUnitQuarantine` in the same operations parameter record
+owns one explicitly named old user unit. The explicit `quarantine-plan`,
+`quarantine-hold` and `quarantine-release` entrances run as that exact UID;
+ordinary `apply` neither fabricates nor clears this separate custody. A missing
+declaration is a refusal, never a release.
+
+Its private marker is under the declared user's existing WSL-host state area.
+A persistent user-unit drop-in adds `ConditionPathExists=!<marker>`. This is
+outside LAGOON's per-profile recovery-hold area: an independently qualified new
+controller must be installable while the selector remains blocked. Existing
+LAGOON holds still refuse release. No second controller, timer or enablement
+identity is introduced. Wants, Restart and later source unit definitions still
+pass through the persistent native condition after reboot.
+
+The first hold compares the record's boot ID, MainPID, invocation, cgroup, process
+start tick, complete argv and real cwd against the actual frozen resident twice
+around the sole native effect, user-manager daemon-reload. Main/control jobs must
+be absent. It writes and fsyncs the private marker before the drop-in; a failure
+cannot remove either. Receiving must prove the exact loaded drop-in and unchanged
+frozen invocation. A partial marker without a loaded condition is held custody,
+not a successful boot-safe result. Neither CLI nor ordinary apply stops or thaws
+the original process. Omitted and renamed declarations leave existing bytes in
+place, so no omission can clear a previous guard.
+
+Release is a separate, explicit owner decision. A later reviewed parameter change
+selects the private replacement-receiving Resource by its exact SHA256, with
+independent receiver and original subject. Its format is
+`WslQuarantineReplacementReceiving@1`: original marker digest and invocation,
+unit, selected profile/link/artifact root, native current-record digest, exact
+ExecStart, and an explicit independent reconciliation of original unknown effects.
+The source-owned expected digest is the authority boundary; a self-authored
+checkbox or file does not confer receiving authority. No release Resource is
+selected in the incident's initial record.
+
+Before clearing only its own marker, the service checks that Resource against
+actual profile link/current record, selected CDE package version/publisher Git
+head and selector Git blob; checks the held native unit's exact replacement
+command, no main/control process or job; and receives the captured hierarchical
+cgroup terminal plus no native LAGOON recovery holds. Reboot or missing PID alone
+cannot satisfy the independent reconciliation decision. It fsyncs a release
+outcome containing original marker and receiving digests before unlinking its
+marker. A partial release refuses further effects for owner reconciliation.
+The benign condition remains, and release itself never starts the unit.
+
+Qualification separates pure source/refusal cases from one admitted isolated
+native user-unit fixture: freeze an owned harmless unit, install the source-owned
+condition without changing its PID/invocation/freezer, prove restart refusal while
+held after terminalization and source-definition replacement, then qualify explicit
+received release. Fixture effects never touch the production selector. Production
+hold application requires independent source/native receiving first; offline
+maintenance still requires its separate checkpoint/admin admission.
 
 ## Residual work
 
