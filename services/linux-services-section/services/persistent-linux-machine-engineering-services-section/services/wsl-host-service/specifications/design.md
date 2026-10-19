@@ -208,7 +208,9 @@ owns one explicitly named old user unit. The explicit `quarantine-plan`,
 ordinary `apply` neither fabricates nor clears this separate custody. A missing
 declaration is a refusal, never a release.
 
-Its private marker is under the declared user's existing WSL-host state area.
+Its private marker is under the declared user's private
+`.local/state/wsl-host-service/quarantines` area. The group-writable shared
+`.local/state/561-group` parent is deliberately not used or modified.
 A persistent user-unit drop-in adds `ConditionPathExists=!<marker>`. This is
 outside LAGOON's per-profile recovery-hold area: an independently qualified new
 controller must be installable while the selector remains blocked. Existing

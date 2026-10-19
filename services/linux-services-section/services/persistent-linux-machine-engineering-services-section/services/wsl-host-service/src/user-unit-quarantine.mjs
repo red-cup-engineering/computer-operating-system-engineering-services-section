@@ -14,7 +14,7 @@ export function quarantineDeclaration(parameters) {
   const q = parameters.linux?.userUnitQuarantine;
   if (!q) fail('no declared quarantine; omission does not release an existing native hold');
   if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(q.id) || !/^[a-zA-Z0-9_.@-]+\.service$/.test(q.unit) || !Number.isSafeInteger(q.uid) || q.uid < 1 || !pathData(q.home) || !q.origin) fail('invalid owner binding');
-  const area = join(q.home, '.local/state/561-group/wsl-host-service/quarantines');
+  const area = join(q.home, '.local/state/wsl-host-service/quarantines');
   const marker = join(area, q.id + '.json');
   const guard = join(q.home, '.config/systemd/user', q.unit + '.d', '90-wsl-host-quarantine-' + q.id + '.conf');
   return { ...q, area, marker, guard, released: join(area, q.id + '.released.json'),
