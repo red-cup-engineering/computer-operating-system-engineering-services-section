@@ -58,6 +58,8 @@ Bare Cedar Fog, 2026-10-18 (operations record `observed-2026-10-18`): the agent 
 - WSL-25. The capacity command shall report real backing-volume available bytes, allocation units, VHDX metadata and the operations-owned reserve, growth and overhead estimates separately from guest filesystem capacity.
 - WSL-26. Missing, ambiguous, changed, stale, timed-out or unreadable backing identity or capacity shall refuse without invoking any configuration, cleanup, trim, compaction or service operation.
 - WSL-27. The existing live plan command shall report low or unknown physical backing capacity as drift when the host record declares it, preserving staged and undeclared legacy plans.
+- WSL-43. The operations-owned backing-capacity policy shall preserve an existing host-owner absolute physical-volume floor rather than replace it with a smaller percentage-only reserve.
+- WSL-44. Physical admission shall retain the greater of that absolute floor and the declared physical-volume share, in addition to the operation's peaks and the existing growth and overhead allowances.
 
 The 2026-10-19 incident exhausted Windows C: while guest ext4 reported hundreds
 of GiB available. Guest free space is virtual capacity, not permission to expand
