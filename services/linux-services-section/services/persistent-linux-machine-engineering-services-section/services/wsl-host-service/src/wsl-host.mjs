@@ -5,6 +5,7 @@
 import { chmodSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync, copyFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+export { observeBackingVolumeCapacity, validateBackingStorage, assessBackingVolumeHeadroom } from './backing-capacity.mjs';
 
 export const PARAMETER_SCHEMA = "wsl-host-parameters@1";
 const assetDir = join(dirname(fileURLToPath(import.meta.url)), "..", "assets");

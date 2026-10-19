@@ -34,7 +34,7 @@ Each requirement has one shall. Identifiers are stable.
 
 ## Boundaries
 
-- WSL-13. The service shall not restart WSL, shut down the VM or run PowerShell.
+- WSL-13. The service shall not restart WSL, shut down the VM or execute Windows configuration actions; its explicit capacity command may execute only the owned bounded read-only Windows probe.
 - WSL-14. When a change needs a Windows action, the service shall print the one command the host's owner runs from Windows.
 - WSL-15. If an apply needs root and the caller is not root, the service shall stop before writing and print the sudo command.
 
@@ -45,6 +45,17 @@ Each requirement has one shall. Identifiers are stable.
 - WSL-20. When the record sets a page-cache ceiling on the headroom guard, the guard shall drop clean page cache whenever the cache exceeds the ceiling, at most once per its minimum interval. A busy VM never goes idle for WSL's `autoMemoryReclaim`, and its cache otherwise holds Windows memory. Bare Cedar Fog, 2026-10-14, under CI: 6.2 GiB of cache held the VM at 9.95 GB with Windows at 98% commit, and one drop returned 4.4 GB to Windows within 20 s.
 
 ## Receiving conditions
+
+- WSL-24. The capacity command shall join the current WSL distribution and Linux destination devices to the exact registry-declared VHDX and Windows backing volume identified in the host record.
+- WSL-25. The capacity command shall report real backing-volume available bytes, allocation units, VHDX metadata and the operations-owned reserve, growth and overhead estimates separately from guest filesystem capacity.
+- WSL-26. Missing, ambiguous, changed, stale, timed-out or unreadable backing identity or capacity shall refuse without invoking any configuration, cleanup, trim, compaction or service operation.
+- WSL-27. The existing live plan command shall report low or unknown physical backing capacity as drift when the host record declares it, preserving staged and undeclared legacy plans.
+
+The 2026-10-19 incident exhausted Windows C: while guest ext4 reported hundreds
+of GiB available. Guest free space is virtual capacity, not permission to expand
+its backing VHDX. A declared overhead allowance is an estimate, not an allocation
+reservation or a mathematical bound on arbitrary writes. Existing Windows-side
+maintenance remains a separately authorized owner action under WSL-14.
 
 1. `plan` against the host's record exits 0 on a converged host and 2 on drift, naming the files.
 2. `apply` run twice writes nothing the second time.

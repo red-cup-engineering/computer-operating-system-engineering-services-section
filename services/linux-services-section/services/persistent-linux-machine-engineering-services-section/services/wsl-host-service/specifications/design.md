@@ -30,6 +30,45 @@ parameters (data, operations) --render--> files (pure) --plan--> state --apply--
 
 `wsl-host-parameters@1`: `windows` (`profileMount`, `profileWindowsPath`, `wslConfig.sections`, `defender`, `pagefile`), `linux` (`wslConf.sections`, `sysctl[]`, `blockQueue`, `agentLimits`, `relayReaper`), and free provenance fields (`observed-*`, `legacy`) that the renderers ignore.
 
+## Backing-volume observation
+
+The explicit `capacity --parameters=RECORD --destinations-json=ARRAY` command is
+read-only and builtins-only. `observeBackingVolumeCapacity` checks the actual
+`WSL_DISTRO_NAME` and native `wslpath -w /` distribution-root UNC witness, reads
+only the declared Lxss registry key and exact VHDX through
+the fixed owned PowerShell asset, and asks `Get-Volume -FilePath` for its real
+backing volume. The record binds distribution name, registry key, base path,
+VHD filename, volume ID and Linux mount; current device numbers are observed,
+never persisted across boots. Every requested destination must map to that
+mount's actual device. Unknown devices refuse rather than borrow root capacity.
+
+The child has a finite deadline, a small output cap and no shell or caller-supplied
+probe. Data enters the fixed script as base64 JSON. Freshness and every identity
+are rechecked at the Node boundary. The result carries decimal byte strings and
+operations-owned physical reserve/growth/overhead estimates. Available capacity
+is the minimum of volume free space and the current Windows caller's quota-aware
+`DriveInfo.AvailableFreeSpace`; an unsupported mounted-volume quota join refuses.
+This does not assert arbitrary external storage quotas absent. Consumers sum
+simultaneous guest-device peaks once per backing volume, retaining their ordinary
+guest byte/inode gates. Observations are snapshots, not reservations.
+
+This command neither enables sparse VHD nor trims, compacts, shuts down, changes
+configuration or removes data. A non-sparse dynamic VHD does not automatically
+shrink after guest deletion. Existing compaction rendering is not safe automatic
+incident reclamation: it targets every distro and requires independent owner
+maintenance admission and exact-disk scoping before use.
+
+The prescribed ordinary `plan` also invokes this owned read port for the root
+when the record declares it (outside staged or Linux-only plans). It reports
+actual available bytes against max(physical percentage, minimum) + growth +
+estimated overhead and exits 2 for low or unknown physical capacity. It never
+routes that drift into apply hooks. Legacy records without the declaration retain
+their old plan behavior; operators do not need a third health command.
+
+References: Microsoft [WSL disk space](https://learn.microsoft.com/en-us/windows/wsl/disk-space),
+[Get-Volume](https://learn.microsoft.com/en-us/powershell/module/storage/get-volume),
+and [compact vdisk](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/compact-vdisk).
+
 ## Residual work
 
 - A scheduled `plan` that raises drift as work on the board (operations: Bare Cedar Fog).

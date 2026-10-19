@@ -3,27 +3,45 @@
 // Plan observes; apply reconciles scoped files and managed live values, then receives convergence.
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { applyPlan, liveReloadHooks, observeLive, planFiles, renderFiles, windowsInstruction } from "../src/wsl-host.mjs";
+import { applyPlan, liveReloadHooks, observeLive, planFiles, renderFiles, windowsInstruction, observeBackingVolumeCapacity, assessBackingVolumeHeadroom } from "../src/wsl-host.mjs";
 
 const [command = "plan", ...rest] = process.argv.slice(2);
 const opt = (name, fallback) => rest.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3) ?? fallback;
 const parametersPath = opt("parameters");
 const scope = opt("scope", "all");
 const root = opt("root", "");
-if (!parametersPath || !["plan", "apply"].includes(command) || !["linux", "windows", "all"].includes(scope)) {
-  console.error("usage: wsl-host plan|apply --parameters=<file> [--scope=linux|windows|all] [--root=<dir>]");
+if (!parametersPath || !["plan", "apply", "capacity"].includes(command) || !["linux", "windows", "all"].includes(scope)) {
+  console.error("usage: wsl-host plan|apply|capacity --parameters=<file> [--scope=linux|windows|all] [--root=<dir>] [--destinations-json=<array>]");
   process.exit(64);
 }
 const params = JSON.parse(readFileSync(parametersPath, "utf8"));
+if (command === 'capacity') {
+  try {
+    const raw = opt('destinations-json', '["/"]');
+    if (Buffer.byteLength(raw) > 16384) throw new TypeError('destination input exceeds 16 KiB');
+    const result = observeBackingVolumeCapacity(params, JSON.parse(raw));
+    console.log(JSON.stringify(result));
+  } catch (error) { console.error(`wsl-host capacity refused: ${error.message}`); process.exitCode = 2; }
+} else {
 const inScope = (f) => scope === "all" || f.scope === scope;
 const files = renderFiles(params, root).filter(inScope);
 const observe = () => root ? [] : observeLive(params).filter(inScope);
 let plan = planFiles(files), live = observe();
+let backing = [];
+if (command === 'plan' && !root && scope !== 'linux' && params.windows?.backingStorage) {
+  try {
+    backing = assessBackingVolumeHeadroom(observeBackingVolumeCapacity(params, ['/'])).map(v => ({
+      name: `Windows backing capacity ${v.id}`, ok: v.admitted,
+      want: `at least ${v.requiredBytes} bytes (physical reserve + growth + estimated overhead)`, have: `${v.availableBytes} available bytes`
+    }));
+    for (const c of backing.filter(c => c.ok)) console.log(`current ${c.name}: ${c.have}; ${c.want}`);
+  } catch (error) { backing = [{ name: 'Windows backing capacity', ok: false, want: 'fresh registered physical capacity', have: `unknown: ${error.message}` }]; }
+}
 const reportLive = (checks) => {
   for (const c of checks.filter((c) => !c.ok)) console.log(`live    ${c.name}: want ${c.want}, have ${c.have ?? "unreadable"}`);
 };
 for (const f of plan) console.log(`${f.state.padEnd(7)} ${f.path}`);
-reportLive(live);
+reportLive([...live, ...backing]);
 const drift = plan.some((f) => f.state !== "current");
 const hooks = liveReloadHooks(live);
 if (command === "apply" && (drift || hooks.length)) {
@@ -45,4 +63,5 @@ if (command === "apply") {
   live = observe();
   reportLive(live);
 }
-process.exit(plan.some((f) => f.state !== "current") || live.some((c) => !c.ok) ? 2 : 0);
+process.exit(plan.some((f) => f.state !== "current") || live.some((c) => !c.ok) || backing.some((c) => !c.ok) ? 2 : 0);
+}
