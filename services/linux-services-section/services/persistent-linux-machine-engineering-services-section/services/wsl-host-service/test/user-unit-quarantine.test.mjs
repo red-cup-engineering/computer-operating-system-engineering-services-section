@@ -1,4 +1,6 @@
 import test from 'node:test';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, existsSync, chmodSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -125,4 +127,18 @@ test('a later native condition reset refuses despite retained drop-in bytes', t 
   f.u.conditions = [];
   assert.throws(() => planQuarantine(f.parameters, f.native), /effective negative marker condition missing/);
   assert.ok(existsSync(f.q.marker));
+});
+
+test('the actual service CLI reports an unheld declaration as drift and refuses staged hold effects', t => {
+  const f = fixture(t);
+  const record = join(f.q.home, 'wsl-host.json');
+  writeFileSync(record, JSON.stringify(f.parameters), { mode: 0o600 });
+  const cli = fileURLToPath(new URL('../scripts/wsl-host.mjs', import.meta.url));
+  const plan = spawnSync(process.execPath, [cli, 'quarantine-plan', '--parameters=' + record], { encoding: 'utf8', timeout: 5000 });
+  assert.equal(plan.status, 2, plan.stderr);
+  assert.equal(JSON.parse(plan.stdout).status, 'unheld');
+  const staged = spawnSync(process.execPath, [cli, 'quarantine-hold', '--parameters=' + record, '--root=' + f.q.home], { encoding: 'utf8', timeout: 5000 });
+  assert.equal(staged.status, 2, staged.stderr);
+  assert.match(staged.stderr, /not staged/);
+  assert.equal(existsSync(f.q.marker), false);
 });
