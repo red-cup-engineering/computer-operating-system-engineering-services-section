@@ -33,14 +33,24 @@ parameters (data, operations) --render--> files (pure) --plan--> state --apply--
 ## Backing-volume observation
 
 The explicit `capacity --parameters=RECORD --destinations-json=ARRAY` command is
-read-only and builtins-only. `observeBackingVolumeCapacity` checks the actual
-`WSL_DISTRO_NAME` and native `wslpath -w /` distribution-root UNC witness, reads
+read-only and builtins-only. `observeBackingVolumeCapacity` checks an available
+`WSL_DISTRO_NAME` hint and mandatory native `wslpath -w /`
+distribution-root UNC witness, reads
 only the declared Lxss registry key and exact VHDX through
 the fixed owned PowerShell asset, and asks `Get-Volume -FilePath` for its real
 backing volume. The record binds distribution name, registry key, base path,
 VHD filename, volume ID and Linux mount; current device numbers are observed,
 never persisted across boots. Every requested destination must map to that
 mount's actual device. Unknown devices refuse rather than borrow root capacity.
+Systemd user managers may omit WSL environment hints: absence is accepted only
+with the same mandatory kernel, native UNC, registry, VHDX and volume proofs.
+A present mismatching distro hint refuses. No caller environment is copied or
+invented to repair a failed proof; unavailable native interoperability is unknown.
+For a caller that already has native Windows interoperability, the existing
+`systemd-run --user --scope` resource preserves that caller's process context
+while applying cgroup and runtime bounds. A transient service instead starts
+from the manager and may lack an interop ancestor. No session environment or
+socket is copied to make such a service appear qualified.
 
 The child has a finite deadline, a small output cap and no shell or caller-supplied
 probe. Data enters the fixed script as base64 JSON. Freshness and every identity
@@ -68,6 +78,8 @@ their old plan behavior; operators do not need a third health command.
 References: Microsoft [WSL disk space](https://learn.microsoft.com/en-us/windows/wsl/disk-space),
 [Get-Volume](https://learn.microsoft.com/en-us/powershell/module/storage/get-volume),
 and [compact vdisk](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/compact-vdisk).
+Carrier semantics: [systemd-run](https://www.freedesktop.org/software/systemd/man/systemd-run.html)
+and original [WSL interop](https://github.com/microsoft/WSL/blob/master/doc/docs/technical-documentation/interop.md).
 
 ## Residual work
 

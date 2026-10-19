@@ -68,7 +68,9 @@ export function assessBackingVolumeHeadroom(capacity) {
 export function observeBackingVolumeCapacity(parameters, destinations, ports = {}) {
   const p = validateBackingStorage(parameters), now = ports.now ?? Date.now;
   assert.match((ports.osRelease ?? release)(), /microsoft/i, 'capacity requires the current WSL host');
-  assert.equal((ports.environment ?? process.env).WSL_DISTRO_NAME, p.distributionName, 'current WSL distribution differs from host record');
+  const namedDistribution = (ports.environment ?? process.env).WSL_DISTRO_NAME;
+  // A user service manager may omit this hint. Native root UNC is mandatory below.
+  if (namedDistribution !== undefined) assert.equal(namedDistribution, p.distributionName, 'current WSL distribution differs from host record');
   assert.ok(Array.isArray(destinations) && destinations.length > 0 && destinations.length <= 32, 'one to 32 destinations required');
   assert.equal(new Set(destinations).size, destinations.length, 'duplicate destinations');
   for (const path of destinations) assert.ok(typeof path === 'string' && isAbsolute(path) && path.length <= 4096 && !path.includes('\0'), 'invalid destination');

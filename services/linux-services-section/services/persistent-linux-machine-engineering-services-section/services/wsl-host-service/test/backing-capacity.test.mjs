@@ -59,6 +59,11 @@ test('current environment and native root witness must both identify the registe
   f.ports.environment.WSL_DISTRO_NAME='Example'; f.ports.run=()=> '\\\\wsl.localhost\\Other\\';
   assert.throws(()=>observeBackingVolumeCapacity(f.p,['/'],f.ports),/native WSL root identity/);
 });
+test('service-manager absence of distro environment still requires the native root identity',()=>{
+  const f=fixture();f.ports.environment={};
+  assert.equal(observeBackingVolumeCapacity(f.p,['/'],f.ports).type,'WslBackingVolumeCapacity');assert.equal(f.calls.length,2);
+  f.ports.run=()=> '\\\\wsl.localhost\\Other\\';assert.throws(()=>observeBackingVolumeCapacity(f.p,['/'],f.ports),/native WSL root identity/);
+});
 test('registry, VHD path and volume identity changes each refuse', () => {
   for(const mutate of [f=>f.result.distribution.name='Other',f=>f.result.distribution.basePath='E:\\other',f=>f.result.distribution.vhdFileName='other.vhdx',f=>f.result.vhd.path='D:\\other.vhdx',f=>f.result.volume.id='\\\\?\\Volume{33333333-3333-3333-3333-333333333333}\\']){
     const f=fixture();mutate(f);assert.throws(()=>observeBackingVolumeCapacity(f.p,['/'],f.ports),/changed/);
