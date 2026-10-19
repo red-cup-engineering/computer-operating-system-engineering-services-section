@@ -66,6 +66,16 @@ This does not assert arbitrary external storage quotas absent. Consumers sum
 simultaneous guest-device peaks once per backing volume, retaining their ordinary
 guest byte/inode gates. Observations are snapshots, not reservations.
 
+The host's operations record reconciles this physical reserve with existing
+host-owner policy. An absolute floor is not replaced by a percentage chosen for
+another capacity check: reserve is `max(minFreeBytes, totalBytes *
+minFreePercent / 100)`, rounded upward, before adding peaks, growth and overhead.
+On 2026-10-19 Bare Cedar Fog's CodexHome CH-18/CH-19 record already held the
+owner's 100,000,000,000-byte physical floor, while its WSL backing policy declared
+zero absolute bytes and 3%. The WSL policy must carry that existing decimal
+100 GB floor; the service retains generic typed values and does not invent a
+new floor, convert it to GiB, or relax it when guest capacity appears ample.
+
 This command neither enables sparse VHD nor trims, compacts, shuts down, changes
 configuration or removes data. A non-sparse dynamic VHD does not automatically
 shrink after guest deletion. Existing compaction rendering is not safe automatic
