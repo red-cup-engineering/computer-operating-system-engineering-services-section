@@ -2,6 +2,7 @@
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
+if ($expected.requestNonce -cnotmatch '^[0-9a-f]{64}$') { throw 'Invalid capacity request challenge' }
 $r = Get-ItemProperty -LiteralPath $expected.registryKey
 if ($r.DistributionName -cne $expected.distributionName -or
     $r.BasePath -ine $expected.basePath -or
@@ -22,6 +23,7 @@ $drive = [IO.DriveInfo]::new($root)
 $callerAvailable = $drive.AvailableFreeSpace
 $available = [Math]::Min([UInt64]$v.SizeRemaining, [UInt64]$callerAvailable)
 @{
+  requestNonce = $expected.requestNonce
   at = [DateTime]::UtcNow.ToString('o')
   distribution = @{ name = $r.DistributionName; basePath = $r.BasePath; vhdFileName = $r.VhdFileName }
   volume = @{ id = $v.UniqueId; totalBytes = $v.Size.ToString(); availableBytes = $available.ToString(); allocationUnitBytes = $v.AllocationUnitSize.ToString(); volumeFreeBytes = $v.SizeRemaining.ToString(); callerAvailableBytes = $callerAvailable.ToString() }

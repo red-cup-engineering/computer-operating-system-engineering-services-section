@@ -66,6 +66,19 @@ This does not assert arbitrary external storage quotas absent. Consumers sum
 simultaneous guest-device peaks once per backing volume, retaining their ordinary
 guest byte/inode gates. Observations are snapshots, not reservations.
 
+Freshness does not assume synchronized Windows and WSL wall clocks. During the
+original managed BCF formation on 2026-10-20, a native probe completed in 2.725 s
+but Windows reported a timestamp 1.002 s ahead of the Linux receipt, crossing the
+former 1 s future comparison. Each call now creates a random 256-bit challenge
+that the fixed PowerShell producer echoes. Missing, mismatched or replayed
+responses refuse. The whole native observation, including identity rechecks,
+must finish within the unchanged `maxAgeMs` measured by the local monotonic
+clock; each child retains its existing timeout and output bound. Invalid clocks,
+over-budget responses and malformed producer timestamps refuse. `at` is the
+Linux receipt time for same-clock consumer age checks; `freshness` retains the
+request challenge, original Windows `producerAt` and local elapsed milliseconds.
+No host time, timeout, policy, reserve or configuration value changes.
+
 The host's operations record reconciles this physical reserve with existing
 host-owner policy. An absolute floor is not replaced by a percentage chosen for
 another capacity check: reserve is `max(minFreeBytes, totalBytes *

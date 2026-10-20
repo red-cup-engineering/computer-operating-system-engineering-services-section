@@ -4,6 +4,8 @@ import { readFileSync, statSync, realpathSync, lstatSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { dirname, isAbsolute, resolve, win32 } from 'node:path';
 import { release } from 'node:os';
+import { randomBytes } from 'node:crypto';
+import { performance } from 'node:perf_hooks';
 
 const asset = new URL('../assets/observe-backing-capacity.ps1', import.meta.url);
 const decimal = (v, name, positive = false) => {
@@ -67,6 +69,7 @@ export function assessBackingVolumeHeadroom(capacity) {
 /** No shell, mutation, or generic command adapter. Test ports replace observations only. */
 export function observeBackingVolumeCapacity(parameters, destinations, ports = {}) {
   const p = validateBackingStorage(parameters), now = ports.now ?? Date.now;
+  const monotonic = ports.monotonic ?? (() => performance.now());
   assert.match((ports.osRelease ?? release)(), /microsoft/i, 'capacity requires the current WSL host');
   const namedDistribution = (ports.environment ?? process.env).WSL_DISTRO_NAME;
   // A user service manager may omit this hint. Native root UNC is mandatory below.
@@ -81,22 +84,26 @@ export function observeBackingVolumeCapacity(parameters, destinations, ports = {
     assert.ok(isAbsolute(actual.real), 'invalid observed destination');
     return { path, linuxMount: p.linuxMount, device: actual.device, volumeId: p.volumeId };
   });
+  const started = monotonic();
+  assert.ok(Number.isFinite(started), 'unknown local monotonic observation clock');
+  const requestNonce = (ports.nonce ?? (() => randomBytes(32).toString('hex')))();
+  assert.match(requestNonce, /^[0-9a-f]{64}$/, 'invalid capacity request challenge');
   const run = ports.run ?? ((program, args) => execFileSync(program, args, { encoding: 'utf8', timeout: p.timeoutMs, killSignal: 'SIGKILL', maxBuffer: 32768, windowsHide: true }));
   const rootWindowsPath = run(p.wslpath, ['-w', mount.real]).trim();
   const expectedRoots = [`\\\\wsl.localhost\\${p.distributionName}\\`, `\\\\wsl$\\${p.distributionName}\\`];
   assert.ok(expectedRoots.some(x => sameWindows(rootWindowsPath, x)), 'native WSL root identity differs from registered distribution');
-  const input = Buffer.from(JSON.stringify(p)).toString('base64');
+  const input = Buffer.from(JSON.stringify({ ...p, requestNonce })).toString('base64');
   // Set progress policy before ConvertFrom-Json can trigger first-use module loading.
   const script = `$ProgressPreference = 'SilentlyContinue'\n$ErrorActionPreference = 'Stop'\n$expected = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${input}')) | ConvertFrom-Json\n` + readFileSync(asset, 'utf8');
   const result = JSON.parse(run(p.powershell, ['-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(script, 'utf16le').toString('base64')]).replace(/^\uFEFF/, ''));
   assert.ok(result && result.distribution && result.volume && result.vhd, 'incomplete Windows capacity observation');
+  assert.equal(result.requestNonce, requestNonce, 'Windows capacity response belongs to another request');
   assert.equal(result.distribution.name, p.distributionName, 'registered distribution changed');
   assert.ok(sameWindows(result.distribution.basePath, p.basePath), 'registered VHD base path changed');
   assert.equal(result.distribution.vhdFileName, p.vhdFileName, 'registered VHD filename changed');
   assert.ok(sameWindows(result.vhd.path, win32.join(p.basePath, p.vhdFileName)), 'observed VHD path changed');
   assert.ok(sameWindows(result.volume.id, p.volumeId), 'actual backing volume changed');
-  const observed = Date.parse(result.at), at = now();
-  assert.ok(Number.isFinite(observed) && observed <= at + 1000 && at - observed <= p.maxAgeMs, 'stale or future Windows capacity observation');
+  assert.ok(typeof result.at === 'string' && result.at.length <= 128 && Number.isFinite(Date.parse(result.at)), 'invalid Windows producer timestamp');
   for (const k of ['totalBytes', 'availableBytes', 'allocationUnitBytes']) decimal(result.volume[k], k, k !== 'availableBytes');
   for (const k of ['volumeFreeBytes', 'callerAvailableBytes']) decimal(result.volume[k], k);
   assert.ok(BigInt(result.volume.availableBytes) <= BigInt(result.volume.totalBytes), 'invalid Windows free capacity');
@@ -108,6 +115,12 @@ export function observeBackingVolumeCapacity(parameters, destinations, ports = {
   // Bind the destination mapping again after the Windows observation.
   assert.equal(deviceOf(p.linuxMount).device, mount.device, 'root device changed during probe');
   for (const mapping of mappings) assert.equal(deviceOf(resolve(mapping.path)).device, mapping.device, 'destination device changed during probe');
-  return { type: 'WslBackingVolumeCapacity', version: 1, at: new Date(observed).toISOString(), rootWindowsPath, mappings,
+  const elapsedMs = monotonic() - started;
+  assert.ok(Number.isFinite(elapsedMs) && elapsedMs >= 0 && elapsedMs <= p.maxAgeMs, 'stale or unknown local capacity observation');
+  // Windows and WSL wall clocks need not agree. The owned child echoes this
+  // request's challenge; the unchanged local monotonic budget bounds its age.
+  // Consumers compare this Linux receipt timestamp with their same Linux clock.
+  return { type: 'WslBackingVolumeCapacity', version: 1, at: new Date(now()).toISOString(),
+    freshness: { requestNonce, producerAt: result.at, elapsedMs }, rootWindowsPath, mappings,
     volumes: [{ ...result.volume, policy: { ...p.policy }, vhd: { ...result.vhd } }], admissionKind: 'snapshot-not-reservation' };
 }
