@@ -70,6 +70,8 @@ export function assessBackingVolumeHeadroom(capacity) {
 export function observeBackingVolumeCapacity(parameters, destinations, ports = {}) {
   const p = validateBackingStorage(parameters), now = ports.now ?? Date.now;
   const monotonic = ports.monotonic ?? (() => performance.now());
+  const started = monotonic();
+  assert.ok(Number.isFinite(started), 'unknown local monotonic observation clock');
   assert.match((ports.osRelease ?? release)(), /microsoft/i, 'capacity requires the current WSL host');
   const namedDistribution = (ports.environment ?? process.env).WSL_DISTRO_NAME;
   // A user service manager may omit this hint. Native root UNC is mandatory below.
@@ -84,8 +86,6 @@ export function observeBackingVolumeCapacity(parameters, destinations, ports = {
     assert.ok(isAbsolute(actual.real), 'invalid observed destination');
     return { path, linuxMount: p.linuxMount, device: actual.device, volumeId: p.volumeId };
   });
-  const started = monotonic();
-  assert.ok(Number.isFinite(started), 'unknown local monotonic observation clock');
   const requestNonce = (ports.nonce ?? (() => randomBytes(32).toString('hex')))();
   assert.match(requestNonce, /^[0-9a-f]{64}$/, 'invalid capacity request challenge');
   const run = ports.run ?? ((program, args) => execFileSync(program, args, { encoding: 'utf8', timeout: p.timeoutMs, killSignal: 'SIGKILL', maxBuffer: 32768, windowsHide: true }));

@@ -106,6 +106,11 @@ test('late identity rechecks cannot extend the original observation age',()=>{
   f.ports.deviceOf=path=>{if(++deviceReads>2)elapsed=2001;return{real:path,device:'77'};};
   assert.throws(()=>observeBackingVolumeCapacity(f.p,['/'],f.ports),/stale or unknown local/);
 });
+test('initial destination observation time is charged to the same freshness budget',()=>{
+  const f=fixture();let elapsed=0;f.ports.monotonic=()=>elapsed;
+  f.ports.deviceOf=path=>{elapsed=2001;return{real:path,device:'77'};};
+  assert.throws(()=>observeBackingVolumeCapacity(f.p,['/'],f.ports),/stale or unknown local/);
+});
 test('native probe timeout cannot become a successful challenge response', () => {
   const f=fixture();f.ports.run=()=>{throw Object.assign(new Error('native timeout'),{code:'ETIMEDOUT'});};assert.throws(()=>observeBackingVolumeCapacity(f.p,['/'],f.ports),/native timeout/);
 });
