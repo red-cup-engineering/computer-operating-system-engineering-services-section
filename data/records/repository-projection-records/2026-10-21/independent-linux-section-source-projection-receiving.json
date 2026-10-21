@@ -1,0 +1,62 @@
+{
+  "kind": "linux-section-repository-source-projection-receiving.v1",
+  "verdict": "MET_SOURCE_OWNERSHIP_AND_PROPOSED_COMPOSITION",
+  "originalRepository": {
+    "id": 1425266660,
+    "name": "red-cup-engineering/computer-operating-system-services-section",
+    "commit": "df875d1dc2ca7c855245912386a3565bbab80309"
+  },
+  "receivedParentSource": {
+    "head": "dd8a89df3653a2ad520e1a0fb445da4586484828",
+    "tree": "7b7d4f692c101a90ef18c8ea6fdac7a270465ae4",
+    "pull": "https://github.com/red-cup-engineering/computer-operating-system-services-section/pull/11"
+  },
+  "repositories": [
+    {
+      "id": 1427972855,
+      "name": "red-cup-engineering/linux-time-services-section",
+      "commit": "05767803ee7b172fbf9a29df97a2eb98d32bf1b6",
+      "tree": "7785f2f77293040c6bba293cf08805031de02f5a",
+      "originalTree": "f49ad5c7c173358345448762e3110449918e1296",
+      "originalLeafCount": 27,
+      "finalLeafCount": 28
+    },
+    {
+      "id": 1427972977,
+      "name": "red-cup-engineering/persistent-linux-machine-engineering-services-section",
+      "commit": "f549dca7a9686f984e0434878068811d7b409273",
+      "tree": "61ef8f39b0ad0d0bdb545903c1244b661a956c2f",
+      "originalTree": "e34111517efe85b65366b02e9f291a5b41728f1f",
+      "originalLeafCount": 54,
+      "finalLeafCount": 56
+    }
+  ],
+  "sourceAudience": "Original COS source and both children public; initial private creation corrected before parent integration",
+  "preservation": {
+    "exactOriginalImportTrees": true,
+    "parentUnrelatedLeaves": 390,
+    "actualParentRemoteLeaves": 393,
+    "originalSourceCodeAndModes": true,
+    "nestedGuixAndWslGitlinks": true,
+    "existingCdeGitmoduleBlock": true,
+    "workflowCount": 0,
+    "history": "Original history remains at original COS owner; child roots import exact snapshots, not full original history"
+  },
+  "narrowCorrection": {
+    "pull": "https://github.com/red-cup-engineering/linux-time-services-section/pull/1",
+    "merge": "05767803ee7b172fbf9a29df97a2eb98d32bf1b6",
+    "fact": "scripts/service.mjs exists unchanged; new inaccurate absent-export provenance corrected",
+    "authorship": "Receiver made root-authorized record correction; root independently inspected correction and resulting parent gitlink"
+  },
+  "evidence": {
+    "independentLogSha256": "d80d5e55b413a5fbe5100febd17bfc4c81ceb48f3d736cc59da5b55dc9a36a63",
+    "actualRemoteSourceSha256": "c9e3bfa947d171ada7ac07595aab0177f44111693ae8c38c0e3e7a0c9a3c70a8"
+  },
+  "retainedObligations": [
+    "Historical clockkeeper integration and ordinary current-service native operation unreceived",
+    "Persistent original three workspace:* supplier declarations preserved; native/registry qualification unreceived",
+    "Linux and systemd ancestor section repository debt remains",
+    "No tests, package publication, installed host or live service acceptance"
+  ],
+  "recordGrade": "Curated source receiving only; raw logs not source-published"
+}
