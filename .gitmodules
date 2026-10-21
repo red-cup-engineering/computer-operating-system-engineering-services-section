@@ -3,12 +3,7 @@
 	url = https://github.com/red-cup-engineering/computer-deployment-engine.git
 	branch = main
 
-[submodule "linux-time-services-section"]
-	path = services/linux-services-section/services/linux-time-services-section
-	url = https://github.com/red-cup-engineering/linux-time-services-section.git
-	branch = main
-
-[submodule "persistent-linux-machine-engineering-services-section"]
-	path = services/linux-services-section/services/persistent-linux-machine-engineering-services-section
-	url = https://github.com/red-cup-engineering/persistent-linux-machine-engineering-services-section.git
+[submodule "linux-services-section"]
+	path = services/linux-services-section
+	url = https://github.com/red-cup-engineering/linux-services-section.git
 	branch = main

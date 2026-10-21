@@ -1,0 +1,54 @@
+{
+  "kind": "linux-systemd-dedicated-source-repository-receiving.v1",
+  "verdict": "MET_SOURCE_OWNERSHIP_AND_LINUX_COMPOSITION",
+  "originalSource": {
+    "repository": "red-cup-engineering/computer-operating-system-services-section",
+    "commit": "df875d1dc2ca7c855245912386a3565bbab80309",
+    "linuxTree": "21fbdfbea43c6a90d3dbfb1f12296ce38c7a47f0",
+    "systemdTree": "baaf860cf5313c15196caf812d23feb17d6224aa"
+  },
+  "repositories": [
+    {
+      "id": 1427990432,
+      "repository": "red-cup-engineering/systemd-services-section",
+      "commit": "d8ef2c7fcdc5ff4dce08c87d86faf6a01689feb4",
+      "tree": "ae89a1be45ffda89bfe074acc43aa5dcefbe6c3b",
+      "originalLeaves": 20,
+      "currentLeaves": 21
+    },
+    {
+      "id": 1427991584,
+      "repository": "red-cup-engineering/linux-services-section",
+      "commit": "045419649a6824bb6cf54c4768a019083b9d450c",
+      "tree": "2d548487c32952678963fe5091d0cf062981f077",
+      "originalLeaves": 101,
+      "currentLeaves": 5
+    }
+  ],
+  "receiving": {
+    "nativeOriginalImportTreeEquality": true,
+    "allRemoteLeafIdentitiesMatchNative": true,
+    "originalPublicSourceAudiencePreserved": true,
+    "noWorkflowEntrances": true,
+    "noRootPackageOrVersionInvented": true,
+    "linuxComposesExactTimePersistentAndSystemdRevisions": true,
+    "originalSystemdApplication036Unchanged": true
+  },
+  "parentProjection": {
+    "base": "21f106317a434f77da51bb4149cba4cf35acc740",
+    "path": "services/linux-services-section",
+    "commit": "045419649a6824bb6cf54c4768a019083b9d450c",
+    "existingCdeModuleBlockPreserved": true,
+    "all371UnrelatedCurrentLeafIdentitiesPreserved": true,
+    "ownRecord": "This record is one explicit curated addition; raw source logs are not source-published."
+  },
+  "sourceReceipt": {
+    "file": "root-linux-systemd-independent-receiving.json",
+    "sha256": "7e46386e8483e8b2cd8f48894e35fb6d7535cd4ad5fc56d0a97171110939002d"
+  },
+  "remainingObligations": [
+    "Systemd embedded app0.3.6 and canonical app0.3.2 retain distinct integration obligation; no replacement or ordinary operating proof",
+    "Time historical integration and Persistent workspace supplier/native requirements retained",
+    "Source snapshot and composition do not qualify package release, installed or live host operation"
+  ]
+}
