@@ -1,0 +1,39 @@
+{
+  "type": "IndependentCOSCdeCuratedRecordsRemoteSourceReceiving",
+  "at": "2026-10-21T00:52:31.783229+00:00",
+  "verdict": "met",
+  "scope": "Exact two curated source receiving records only, not a new CDE native/runtime judgment",
+  "repository": "red-cup-engineering/computer-operating-system-services-section",
+  "pull": 9,
+  "head": "071b642f0b6a201c5bdfdd61c9c92e06a6ac62aa",
+  "tree": "cdfe56f3f5628c22496e954cd6b19acba1b6e96f",
+  "parent": "f89d72f1323fad1230c873378b038361900ac8e0",
+  "observedMain": "f89d72f1323fad1230c873378b038361900ac8e0",
+  "records": [
+    {
+      "path": "data/records/storage-correction-records/2026-10-20/independent-cde-owned-storage-source-native-receiving.json",
+      "sha256": "fa15f3a234e453d84c638b0b42ce392078aac57859e3f978b9ee9274e3c56f64",
+      "gitBlob": "5f610c43d371f8c75f64916313a335215ca25a00",
+      "bytes": 20778,
+      "mode": "100644",
+      "scope": "Exact source correction and tiny owner-path QA only"
+    },
+    {
+      "path": "data/records/storage-correction-records/2026-10-20/independent-cde-current-main-minor-source-forward-receiving.json",
+      "sha256": "22b1929f17a147edabe472b4386c77b0536a8a7c926e244706d7d609752d92a0",
+      "gitBlob": "37fff2f83265eff2d1a6c2bde43037888ebed5e1",
+      "bytes": 15260,
+      "mode": "100644",
+      "scope": "Source assimilation and exact remote PR62 candidate only. Original scoped tiny QA remains antecedent; no rerun, whole native, suppliers, Guix, pack, publication, installed program or host acceptance."
+    }
+  ],
+  "bytes": 36038,
+  "allOtherLeavesAndGitlinksPreserved": true,
+  "rawLogsOrApplicationGitlinkAdded": false,
+  "nativeTestsReplayed": false,
+  "limits": [
+    "Original source/tiny QA and current-source-forward grades remain distinct; second record is antecedent to later worker-fixture follow-through.",
+    "Whole supplier/native/Guix/packed/actual publication/installed consumer/BCF-CRG uptake are not received here.",
+    "Fresh main/path/head/check and ordinary expected-head integration remain producer responsibility; no merge by this receiver."
+  ]
+}
