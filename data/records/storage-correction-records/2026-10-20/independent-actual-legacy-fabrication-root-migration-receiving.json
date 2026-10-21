@@ -1,0 +1,65 @@
+{
+  "type": "IndependentActualLegacyFabricationRecordsOwningStorageMigrationReceiving",
+  "at": "2026-10-21T00:11:32.535228+00:00",
+  "verdict": "met",
+  "scope": "Actual single exact legacy fabrication directory custody rename into COS typed logs; no graph or deployment operating acceptance.",
+  "owner": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section",
+  "actualRoot": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/computer-deployment-fabrication-logs/20261019-bcf-tagged-release",
+  "originalDirectoryIdentity": {
+    "device": 2096,
+    "inode": 17343545,
+    "uid": 1000
+  },
+  "inspected": {
+    "oldRootAbsentNoCompatibilitySymlink": true,
+    "destinationCanonicalRealSameDirectory": true,
+    "actualNativeExit": 0,
+    "actualTerminalStdoutStderrEmpty": true,
+    "planAndStartedTerminalHashesBound": true,
+    "threeNamedWitnessInodesBytesModesAndHashesUnchanged": true,
+    "allEightNamedOutsideRootIdentitiesTargetsUnchanged": true,
+    "copyGCDeletionOrCapacityReclaimClaim": false,
+    "historicalMemberRewriteOrAutoTrackingClaim": false,
+    "effectOrScopeQueryReplayedByReceiver": false
+  },
+  "consumerDisposition": "All old absolute executable/source/graph/worktree/prepared-stage bindings stay frozen. Any actual future consumer needs fresh qualified forward binding against this owning path; immutable historical strings are retained, not rewritten.",
+  "remaining": {
+    "curatedMigrationRecordSourcePublication": "unverified",
+    "forwardSourceGraphToolReceivingAndUsefulOperation": "unverified",
+    "otherHomeStateAndOutsideProductRootsMigration": "unverified",
+    "housewideCleanup": "unverified"
+  },
+  "method": "Only exact source/destination lstat, three named file witnesses and eight previously named outside roots plus delivered evidence were read; no member/process/store scan or move executed.",
+  "files": [
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/records/storage-correction-records/2026-10-20/legacy-fabrication-records-actual-rename-receiving.json",
+      "sha256": "1c05bb2376f409de9b20fd08cfacb46cf8cd21b43031404539228323fd65e6f8",
+      "bytes": 7188
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/records/storage-correction-records/2026-10-20/independent-exact-legacy-fabrication-root-rename-source-receiving.json",
+      "sha256": "a0095b15c2e009ee3acfaad785cf613b5aa68f766bbd11fe53b17f84ea1856eb",
+      "bytes": 6969
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/original-fabrication-root-rename-proposal-v3.json",
+      "sha256": "64acd33283515a4f411ab612a9926dcedd8ee7c05d13c8826b0b40bba5d2a479",
+      "bytes": 24637
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/exact-fabrication-root-rename-started.json",
+      "sha256": "eb608b6b318c51eeee9c11b53b2fa284669cf6da03919104f7322000ebbb876e",
+      "bytes": 6203
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/exact-fabrication-root-rename-terminal.json",
+      "sha256": "adc2f66b2dbd44a1acbf43bd61e131e0294af89401d0697b2b0a8e7d7356a860",
+      "bytes": 1462
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/original-fabrication-root-three-known-witnesses-before-rename.json",
+      "sha256": "06e548a3a19eb4504eff85ed4fd12cfe1f209e14a7a5f877fd280f3c38a61853",
+      "bytes": 1310
+    }
+  ]
+}
