@@ -1,0 +1,338 @@
+{
+  "type": "IndependentCdeOwnedStorageSourceNativeReceiving",
+  "version": 1,
+  "at": "2026-10-21T00:25:21.945124+00:00",
+  "verdict": "met",
+  "scope": "Exact source correction and tiny owner-path QA only",
+  "receiver": "/root/release_merged_packages",
+  "sourceOwner": {
+    "repository": "https://github.com/red-cup-engineering/computer-deployment-engine",
+    "kind": "standalone CDE application",
+    "baseCommit": "017a0634f05307fa34cef90907ffa1f7b5bfb2e2",
+    "candidateCommit": null,
+    "preparedSource": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/source-receiving-logs/cde-owning-data-storage-correction-20261020",
+    "owningSection": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section",
+    "ownerDataRoot": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data",
+    "wholeRepositoryReceived": false
+  },
+  "inspected": {
+    "boundCarriers": 20,
+    "preparedRegularFiles": 62,
+    "preparedBytes": 879376,
+    "changedPaths": 21,
+    "fullDiffSHA256": "77c938b53c1410d8aca1e5da6df408035e81194f3a4224d64b970ff12d25930d",
+    "fullDiffBytes": 112371,
+    "originalGitBlobsIndependentlyRecomputed": 18,
+    "fullDiffExactlyReconstructedFromOriginal017Bytes": true,
+    "all62SourceSHA256BytesAndExecutableIntentsVerified": true,
+    "reviewerNativeOrApiExecution": false
+  },
+  "conditions": [
+    {
+      "id": "proper-owner-and-explicit-context",
+      "verdict": "met",
+      "evidence": "Existing CDE fabrication-storage receiver requires a real canonical services-section/data; CDE convention is data itself, distinct from NodeProcess/CSE section-above-data. No HOME/XDG/store/installed or cwd work fallback."
+    },
+    {
+      "id": "before-effect-writer-admission",
+      "verdict": "met",
+      "evidence": "Formation work/product/output/uncached PNPM paths, retained product output files, controller state/product/temp files, fixed native flock leaf and each original promotion raw-log step are received at their original callers. This is metadata admission, not a concurrent-replacement sandbox."
+    },
+    {
+      "id": "capability-and-concurrent-source-preservation",
+      "verdict": "met",
+      "evidence": "All15 PR60 paths accounted: nine exact files and six coherent mixed paths. The entire017 fabrication specification is retained before appended storage law. Existing native lifecycle/portable-input entrypoints, no-GC/retention, release binding, unknown pending outcomes and status-only historical reads remain."
+    },
+    {
+      "id": "original-caller-migration",
+      "verdict": "met",
+      "evidence": "The missed consumeOptions ownerDataRoot is now explicit. Original assertions remain; fresh real typed-log fixture roots replace unowned test paths. Actual promotion stable-log refusal case is prepared, not claimed run by the tiny builtin family."
+    },
+    {
+      "id": "actual-current-tiny-node",
+      "verdict": "met",
+      "evidence": "New raw TAP final plan36/36 pass; fail/cancel/skip/todo0, status0, empty stderr, quiescent child group. Covers path/controller metadata including the two stable leaf refusal primitives; not native Guix formation/retention."
+    },
+    {
+      "id": "actual-changed-guile-context",
+      "verdict": "met",
+      "evidence": "New actual Guile3.0.9 result31/31 pass/fail0/skip0/status0, with all four owner/log variables absent and source-derived COS/data+typed logs visible. The two old installed app/CSE paths are explicit selector controls only. Old31/34 antecedents are not relabeled current proof."
+    },
+    {
+      "id": "documentary-filing-and-raw-custody",
+      "verdict": "met",
+      "evidence": "Docs-only v4 puts disposable work in typed logs and curated product examples in records, explicitly retains state/records tracking. Runtime and all eight current QA source guard files unchanged. Actual GHS raw directory inode+three witness hashes checked at forward logs path; old path absent. No bulk/raw source publication is selected."
+    }
+  ],
+  "nativeGrade": {
+    "node": {
+      "tests": 36,
+      "pass": 36,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "guile": {
+      "pass": 31,
+      "fail": 0,
+      "skip": 0
+    },
+    "phaseStatuses": [
+      0,
+      0
+    ],
+    "childGroupsQuiescent": true,
+    "sourceGuardFiles": 8,
+    "reviewerReranTests": false,
+    "installedProviderOrMachineAcceptance": false
+  },
+  "outsideThisVerdict": [
+    {
+      "condition": "Complete current CDE supplier closure and original full native/packed suite",
+      "verdict": "unmet",
+      "reason": "Not delivered or accepted by this source-stage assay; underlying operating behavior remains unverified."
+    },
+    {
+      "condition": "Native prepareRelease and retainProductInputs positive/refusal through that closure",
+      "verdict": "unmet",
+      "reason": "Not delivered or accepted by this source-stage assay; underlying operating behavior remains unverified."
+    },
+    {
+      "condition": "Legitimate version/publication and actual installed CDE consumer",
+      "verdict": "unmet",
+      "reason": "Not delivered or accepted by this source-stage assay; underlying operating behavior remains unverified."
+    },
+    {
+      "condition": "BCF/CRG live owner-data configuration, activation and useful host operation",
+      "verdict": "unmet",
+      "reason": "Not delivered or accepted by this source-stage assay; underlying operating behavior remains unverified."
+    },
+    {
+      "condition": "Future forward execution bindings for moved historical graphs/worktrees/carriers",
+      "verdict": "unmet",
+      "reason": "Not delivered or accepted by this source-stage assay; underlying operating behavior remains unverified."
+    }
+  ],
+  "changedSource": [
+    {
+      "path": "README.md",
+      "sha256": "90ec79d7e1d4a9f527f8ea0b1648a23237fb1fcede1ce6ca2b283b915cc32cb4",
+      "gitBlob": "2f299a715bc7cb38e7cfa0b72998aba13c3c6d67",
+      "mode": "100644"
+    },
+    {
+      "path": "content/text/documents/specifications/2026-10-19-observability.md",
+      "sha256": "7c79ab8c577492da372dab534a2f2bdfd874119a507d1e7a484e2c043a7a4045",
+      "gitBlob": "b262c7919f8c2b2423e6a20b0c8fd8d5daa4daed",
+      "mode": "100644"
+    },
+    {
+      "path": "content/text/documents/specifications/fabrication-storage.md",
+      "sha256": "7c9b382c6e584a49f1e34df18a7c8df253dbb410223321d02ff9aa72cceb8aa3",
+      "gitBlob": "1be029c268154580ee826bb5420df57d2dafee0f",
+      "mode": "100644"
+    },
+    {
+      "path": "content/text/documents/specifications/native-release-product.md",
+      "sha256": "aa7ab57823aff8583ad553bc63697f8a12774b8aaaea44926e8e839aa53b7d7d",
+      "gitBlob": "b15a3ff1693f5a62c15eb31a03517d3acb88ac31",
+      "mode": "100644"
+    },
+    {
+      "path": "content/text/documents/specifications/release-controller.md",
+      "sha256": "771d0ff774202fb75f1338a967afac581f1c95f65892f2055f0c06650ee71bd1",
+      "gitBlob": "ffbdaee7a93891947f2b8b129347463f88921fc9",
+      "mode": "100644"
+    },
+    {
+      "path": "package.json",
+      "sha256": "ef1155e388f6b8c300cb0cb32ea10c58f6662aee505b1a7fd3d9db249403c67f",
+      "gitBlob": "2d42cbbcba8eff4a7197f379ed3b83d902d8b66a",
+      "mode": "100644"
+    },
+    {
+      "path": "scripts/look.scm",
+      "sha256": "a8fc4518c755a38d5038952f7c3f0148325a90e2fd15d0d452e32014f24ac43c",
+      "gitBlob": "1580eca0c2b4a9eacd95d95b5a0d476c7698f677",
+      "mode": "100644"
+    },
+    {
+      "path": "scripts/prepare-release.mjs",
+      "sha256": "eb5da2afc39fe68e9b8aea4b9538b34521f3baca58fbddb18a71f17fd7189340",
+      "gitBlob": "efd2ac4388f8016dba98cdddac6a1c382ae1d9fa",
+      "mode": "100644"
+    },
+    {
+      "path": "scripts/promote.mjs",
+      "sha256": "c09f66504f059ac127e48c6d433c87be3e6b25b51b8be0228491b2da7dcfadae",
+      "gitBlob": "ec0547a4d1b8c30e5ab5e13d38aa89810d216fe8",
+      "mode": "100644"
+    },
+    {
+      "path": "scripts/release-on-landing.mjs",
+      "sha256": "6372e845bd226d6df2f822387443ca469cb014051601b41d7e21e67d05e5f16b",
+      "gitBlob": "b5cdbd37acfc70b61a6239f9f3f2db10a707f663",
+      "mode": "100644"
+    },
+    {
+      "path": "src/fabrication-storage.mjs",
+      "sha256": "2a02e68e6f74be384e51cebca4e3e812beabd968a649e0e3e06c13f106cd399a",
+      "gitBlob": "a55a68fca36b03bc62a6165fffa378728b8856e6",
+      "mode": "100644"
+    },
+    {
+      "path": "src/lagoon-roots.scm",
+      "sha256": "ad63b68453f8f6d1a14fa2e6625c1b19106c6368c9238195a3f4676dc916aceb",
+      "gitBlob": "52ee508e915cef339d79cd31000f2f58122e6e88",
+      "mode": "100644"
+    },
+    {
+      "path": "test/lagoon-roots-test.scm",
+      "sha256": "59a006be5b2b95589a6793b1c76bed3d6886a2ba249773a49462f4487047d1c0",
+      "gitBlob": "f16edc4064a40b50752b01175b025bc29944bcb9",
+      "mode": "100644"
+    },
+    {
+      "path": "test/owned-data-paths.test.mjs",
+      "sha256": "1e159959557883af146378e62afd5d6846f114cb1dac9b3151e611f964a3bfe7",
+      "gitBlob": "a26882cd3a2b01ea93852e43691d5ddc7efaaea5",
+      "mode": "100644"
+    },
+    {
+      "path": "test/promote-atomic-integration.test.mjs",
+      "sha256": "c3cd823efac94e1767f99bcebd7e164eb65df945b3efe9d92cb5a36aca7a0bb2",
+      "gitBlob": "98eea3f9cca47cb03777e641e51ff6f82cbdb066",
+      "mode": "100644"
+    },
+    {
+      "path": "test/promote-help-cli.test.mjs",
+      "sha256": "976516795078d6686dfe3628eb0568dbd28da5b98302ca71686482cd245ceccb",
+      "gitBlob": "f8894fe7bf47228bba20b4f529c88462f7584fe5",
+      "mode": "100644"
+    },
+    {
+      "path": "test/promote.test.mjs",
+      "sha256": "0f233b83c553420b40233d496151f68b5cad4126e2a3f2a0a761d61f8caadcce",
+      "gitBlob": "e50678e2a108fd7cd8213dbb31bc81f970f92bad",
+      "mode": "100644"
+    },
+    {
+      "path": "test/promotion-evidence.test.mjs",
+      "sha256": "9a1f4dd9ebeec3de2eae01a27e456ecebdd395ac359d403acaf8bab1aaa5ccf8",
+      "gitBlob": "d63f495f546eb33cf646a384bbfb170d0b233abd",
+      "mode": "100644"
+    },
+    {
+      "path": "test/release-on-landing.test.mjs",
+      "sha256": "f293193cabd982b105a8ecc92ddb7ac4349021521f8f72faae9a514f57cec5c8",
+      "gitBlob": "707fc8b8da010319348b7c66b6617b1a4149439f",
+      "mode": "100644"
+    },
+    {
+      "path": "test/release-product.test.mjs",
+      "sha256": "cb5aee4adc3dfe6575dc207533cdb6cae9f489a3e462d78947c1c0550a648da7",
+      "gitBlob": "1bfa4b80f8e013cf9a5ddada9bb6992b9d080a2d",
+      "mode": "100644"
+    },
+    {
+      "path": "test/support/owner-data.mjs",
+      "sha256": "9e4c0e07926de1f65a9c0f34ec2d26e6a0293601a589109372dae9b259633cd3",
+      "gitBlob": "99c84da9373b20cc75c77e4043c049f004664c9b",
+      "mode": "100644"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/source-receiving-logs/cde-owning-data-storage-correction-20261020-receiving/source-native-proposal-v4.json",
+      "sha256": "9771f3c18fdc95da43bf210f7b60656af8f6c7031c55f910cc0ae841e9306a61"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/source-receiving-logs/cde-owning-data-storage-correction-20261020-receiving/final-source-v4.diff",
+      "sha256": "77c938b53c1410d8aca1e5da6df408035e81194f3a4224d64b970ff12d25930d"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/source-receiving-logs/cde-owning-data-storage-correction-20261020-receiving/final-source-index-v4.json",
+      "sha256": "b2cc3b0adc38055ee7ff818b6ede75c2c7945085eb449ac2415e77e1bf1e0c12"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/source-receiving-logs/cde-owning-data-storage-correction-20261020-receiving/final-js-syntax.json",
+      "sha256": "36aa94397f9781fdf67c1653e14a58acf9f6e7b2d49699ac1b6f53ee59c0f514"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/source-receiving-logs/cde-owning-data-storage-correction-20261020-receiving/scratch-classification-correction.json",
+      "sha256": "39cdd00fdacb9a67f57dcfb1cf7b4702eda9ef5d5892db8f1838853bfd150e02"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/source-receiving-logs/cde-owning-data-storage-correction-20261020-receiving/source-authoring-owning-path-uptake-antecedent.json",
+      "sha256": "211e0981e76a5f230e1a0c63856c9b24a77dbd80eedf92e34d65528563b00b6a"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/source-receiving-logs/cde-owning-data-storage-correction-20261020-receiving/run-final-owned-path-units-v3.py",
+      "sha256": "cdfb2f9cae83b265ba1db8ae64f2b7bfe994786a45b60eb734711f53a98110c7"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/typed-test-logs/2026-10-20/cde-storage-final-path-units-v3/execution-intent.json",
+      "sha256": "341f0b6972a2d5721c2027569ba0bba780be096385fce1a7c654467d64589e45"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/typed-test-logs/2026-10-20/cde-storage-final-path-units-v3/native-result.json",
+      "sha256": "49369d739e2d4fe73b8463d341e7c183c41c3132fb03eda219dc9e9b628579eb"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/typed-test-logs/2026-10-20/cde-storage-final-path-units-v3/guile-default-owned-context.stdout",
+      "sha256": "b83d5061dd4c6ee5994d9000b12b8ee551f5703bec56731aae7bc806e3837948"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/typed-test-logs/2026-10-20/cde-storage-final-path-units-v3/guile-default-owned-context.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/typed-test-logs/2026-10-20/cde-storage-final-path-units-v3/node-owned-writer-paths.stdout",
+      "sha256": "547e17a47a1a4700833d79aaf0cfb31c14ad2edd023d97f923d5c2c99f90b7a3"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/typed-test-logs/2026-10-20/cde-storage-final-path-units-v3/node-owned-writer-paths.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/logs/storage-correction-logs/2026-10-20/cde-current-017-forward-reconciliation-v3-resolved.json",
+      "sha256": "7e64c4f321eaeb80740cb01ab24d7b416ffcded1cf9399bc3264b5e7e9d04af9"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/logs/storage-correction-logs/2026-10-20/computer-deployment-engine-017-source-tree.json",
+      "sha256": "2f18feb9ca53bda070a34a7faa88155f24e545c9da4dbdf221040ee198b94f32"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/logs/storage-correction-logs/2026-10-20/cde-owner-data-root-writer-source-native-proposal-v2.json",
+      "sha256": "0046a8a1d512c243c0208899ec029c9c927b77806414d25cbb25577e730a0d2b"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/records/storage-correction-records/2026-10-20/legacy-fabrication-records-actual-rename-receiving.json",
+      "sha256": "1c05bb2376f409de9b20fd08cfacb46cf8cd21b43031404539228323fd65e6f8"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/records/storage-correction-records/2026-10-20/independent-actual-legacy-fabrication-root-migration-receiving.json",
+      "sha256": "a4f65615f3f63b6ad12d8601806d52260c87d47cd5a480faedf1b84a6f4e8711"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/source-receiving-logs/cde-owning-data-storage-correction-20261020-receiving/final-docs-classification-v3-v4.diff",
+      "sha256": "d8e1671be0f6669a666f73403414256d060ac5c025887175bde11e506108cdcf"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/source-receiving-logs/cde-owning-data-storage-correction-20261020-receiving/final-docs-classification-v4.json",
+      "sha256": "9367b1bd8cbdbc760b13c172314be7998ef2e26f2c684e10bb0a8ae4ef65bbbe"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20-raw-receiving-location.json",
+      "sha256": "60558573a8ae51d68ef576b111de7e432ea5bcff99d0da19fb71f2872b0496bd"
+    }
+  ],
+  "filing": {
+    "thisRecord": "Curated owning COS record; must be source-tracked in the owning repository",
+    "rawEvidence": "Only owning data/logs; no raw API/provider payload or duplicate candidate tree is to be source-published",
+    "historicalBytesRewritten": false,
+    "oldHomeWrites": false,
+    "sourceOrRegistryMutationsByReviewer": false
+  }
+}
