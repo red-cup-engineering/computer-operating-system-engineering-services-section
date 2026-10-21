@@ -6,3 +6,8 @@
 	path = services/linux-services-section/services/persistent-linux-machine-engineering-services-section/services/guix-machine-release-service
 	url = https://github.com/red-cup-engineering/guix-machine-release-service.git
 	branch = main
+
+[submodule "wsl-host-service"]
+	path = services/linux-services-section/services/persistent-linux-machine-engineering-services-section/services/wsl-host-service
+	url = https://github.com/red-cup-engineering/wsl-host-service.git
+	branch = main
