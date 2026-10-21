@@ -1,0 +1,91 @@
+{
+  "kind": "IndependentExactLegacyFabricationRootRenameProposalReceiving",
+  "at": "2026-10-21T00:08:01.424755+00:00",
+  "verdict": "met",
+  "scope": "One exact frozen directory same-filesystem no-copy/no-clobber custody rename into COS typed logs, not runnable graph/host use, reclamation or global root absence.",
+  "owner": {
+    "canonicalCOS": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section",
+    "reviewOutputRealpath": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/records/storage-correction-records/2026-10-20"
+  },
+  "planSHA256": "64acd33283515a4f411ab612a9926dcedd8ee7c05d13c8826b0b40bba5d2a479",
+  "carrierSHA256": "19d2dff28f79c692da05f9c83f38176ee6c476b87d6c0246a5bc8aff8c26a25e",
+  "source": {
+    "path": "/home/emsenn/.local/state/561-group/settlements/computer-deployment-engine/products/fabrication-records/20261019-bcf-tagged-release",
+    "device": 2096,
+    "inode": 17343545,
+    "uid": 1000
+  },
+  "destination": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/computer-deployment-fabrication-logs/20261019-bcf-tagged-release",
+  "inspected": {
+    "all5BoundAnd14NamedRetainedEvidenceHashes": true,
+    "actualSourceAndParentIdentities": true,
+    "destinationAndFamilyAbsent": true,
+    "sameFilesystem": true,
+    "nineKnownLocalAndThreeRemoteScopesInactiveDeadEmpty": true,
+    "actualNamedRootsOutsideExactR": true,
+    "baselineFiveNativeInputLinksMatchActualProductArtifacts": true,
+    "nativeGenerationDerivationSourceInspected": true,
+    "threeNamedMemberWitnessesHashInodeUIDUnchanged": true,
+    "nativeMvHashAndExactNoCopyNoClobberNoTargetArgv": true,
+    "v3NormalExceptionExactPathUnknownTerminal": true,
+    "v2ReadonlyPreflight0InspectedNotRepeated": true
+  },
+  "currentReceiverFreeze": "No active oldR watcher/native/install/source writer or future old-path execution; Git118 review/integration uses proper Git logs/client and NodeProcess review uses own section logs. Other known producer freezes supplied by root and sibling messages; not a global unknown-writer proof.",
+  "executionCondition": "Root and producer may proceed once with exact reviewed v3 under fresh action-time source/parent/destination/known-scope guards. Preserve durable started and terminal; any exception/interruption or occupied destination remains unknown/refused until exact two path states are reconciled. No automatic retry, copy fallback, compatibility shim or history rewrite.",
+  "afterReceivingRequired": "Exact destination prior directory identity and old source absence, unchanged three named witnesses at new path, known outside native roots unchanged, and durable result. Retained absolute source/graph/worktree/tool bindings remain frozen until separate forward-owned receiving.",
+  "remaining": {
+    "actualRename": "unverified",
+    "forwardRebindingAndUsefulConsumers": "unverified",
+    "outsideLegacyHomeRootsMigration": "unverified",
+    "capacityReclamation": "not claimed",
+    "completeRootOrProcessInventory": "not claimed"
+  },
+  "method": "Read exact records and metadata only; no tree/store/process scan, no preflight/effect replay, no local or remote move executed.",
+  "files": [
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/original-fabrication-root-rename-proposal-v3.json",
+      "sha256": "64acd33283515a4f411ab612a9926dcedd8ee7c05d13c8826b0b40bba5d2a479",
+      "bytes": 24637
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/rename-exact-legacy-fabrication-root-v3.py",
+      "sha256": "19d2dff28f79c692da05f9c83f38176ee6c476b87d6c0246a5bc8aff8c26a25e",
+      "bytes": 7888
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/original-fabrication-root-three-known-witnesses-before-rename.json",
+      "sha256": "06e548a3a19eb4504eff85ed4fd12cfe1f209e14a7a5f877fd280f3c38a61853",
+      "bytes": 1310
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/original-fabrication-root-rename-preflight-v2.json",
+      "sha256": "e510f5fd6dcc7ee7298d915b814f77f12db6524877a49e83c5dc41020cb7bb35",
+      "bytes": 4777
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/original-fabrication-root-rename-path-custody.json",
+      "sha256": "bc7014d0520da6cd309e0f4d87c90469c3e2bad5383a289f50e2774be88d6e69",
+      "bytes": 4508
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/original-fabrication-root-named-retention-quiescence-receiving-v2.json",
+      "sha256": "d1c811676c18ff60766bd3c663125517f91e95a5a479679878b3ac08993835b2",
+      "bytes": 10255
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/original-fabrication-root-remote-known-scope-quiescence-v2.json",
+      "sha256": "5267433b25ae996d8e1892f5e8eaf0cdc443f48bc4d6ca7f33417ea13ffd487a",
+      "bytes": 1694
+    },
+    {
+      "path": "/home/emsenn/.local/state/561-group/settlements/computer-deployment-engine/products/2c5c1a800878782f92a2d655d6ce63f89273158c39ebaf51647e046901374083/product.json",
+      "sha256": "103a7ac91d7c23123e644b9560d9e5d928efed697dc8d7c092ec856f247c5bd3",
+      "bytes": 3496
+    },
+    {
+      "path": "/home/emsenn/.local/state/561-group/settlements/computer-deployment-engine/products/fabrication-records/20261019-bcf-tagged-release/forward-current-208a22f7-repaired-owner-formation.terminal.json",
+      "sha256": "80aea29cddd8305e9206ad3f41cb005b15d16fc469decfc7bfccbad0e6b8bf14",
+      "bytes": 5946
+    }
+  ]
+}

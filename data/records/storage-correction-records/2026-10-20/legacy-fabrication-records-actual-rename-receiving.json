@@ -1,0 +1,135 @@
+{
+  "type": "ExactLegacyFabricationRecordsOwningStorageMigration",
+  "version": 1,
+  "at": "2026-10-21T00:09:21.175613+00:00",
+  "owningServicesSection": "red-cup-engineering/computer-operating-system-services-section",
+  "oldRoot": "/home/emsenn/.local/state/561-group/settlements/computer-deployment-engine/products/fabrication-records/20261019-bcf-tagged-release",
+  "actualRoot": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/computer-deployment-fabrication-logs/20261019-bcf-tagged-release",
+  "result": "RENAMED_ONCE_SAME_FILESYSTEM",
+  "originalDirectoryIdentity": {
+    "uid": 1000,
+    "device": 2096,
+    "inode": 17343545
+  },
+  "oldRootAbsent": true,
+  "oldPathShim": false,
+  "actualNativeExit": 0,
+  "knownWitnessesUnchanged": [
+    {
+      "relativePath": "forward-current-208a22f7-repaired-owner-formation.terminal.json",
+      "device": 2096,
+      "inode": 219357,
+      "uid": 1000,
+      "mode": "0o600",
+      "bytes": 5946,
+      "sha256": "80aea29cddd8305e9206ad3f41cb005b15d16fc469decfc7bfccbad0e6b8bf14"
+    },
+    {
+      "relativePath": "coordination/tagged-release-current-receiving-20261020.md",
+      "device": 2096,
+      "inode": 3519463,
+      "uid": 1000,
+      "mode": "0o644",
+      "bytes": 4103,
+      "sha256": "85b83441fd4e25a47e9db009d2554de9c62e58c357ee362190446be5710d086a"
+    },
+    {
+      "relativePath": "coordination/console-object-methods-correction/ghs024-original-publisher-program-proposal-v1/p24-lane-frontier.json",
+      "device": 2096,
+      "inode": 5815744,
+      "uid": 1000,
+      "mode": "0o644",
+      "bytes": 4754,
+      "sha256": "397586ab740e113b188368e69e809f074783eab82bb34a20e4b6a7b1dc869a45"
+    }
+  ],
+  "namedNativeRootsOutsideMovedDirectoryUnchanged": [
+    {
+      "path": "/home/emsenn/.local/state/561-group/settlements/computer-deployment-engine/products",
+      "sameIdentity": true,
+      "sameTarget": null,
+      "outsideMovedDirectory": true
+    },
+    {
+      "path": "/home/emsenn/.cache/561-group/lagoon-promote/generations/208a22f7fb08ec55265126b8258eaee2a9a64ed4-208a22f7fb08ec55265126b8258eaee2a9a64ed4-5b085f56bad29667293121c91343995b37f19d80",
+      "sameIdentity": true,
+      "sameTarget": true,
+      "outsideMovedDirectory": true
+    },
+    {
+      "path": "/home/emsenn/.local/state/561-group/settlements/computer-deployment-engine/products/2c5c1a800878782f92a2d655d6ce63f89273158c39ebaf51647e046901374083/product.json",
+      "sameIdentity": true,
+      "sameTarget": null,
+      "outsideMovedDirectory": true
+    },
+    {
+      "path": "/home/emsenn/.local/state/561-group/settlements/computer-deployment-engine/products/2c5c1a800878782f92a2d655d6ce63f89273158c39ebaf51647e046901374083/input-0",
+      "sameIdentity": true,
+      "sameTarget": true,
+      "outsideMovedDirectory": true
+    },
+    {
+      "path": "/home/emsenn/.local/state/561-group/settlements/computer-deployment-engine/products/2c5c1a800878782f92a2d655d6ce63f89273158c39ebaf51647e046901374083/input-1",
+      "sameIdentity": true,
+      "sameTarget": true,
+      "outsideMovedDirectory": true
+    },
+    {
+      "path": "/home/emsenn/.local/state/561-group/settlements/computer-deployment-engine/products/2c5c1a800878782f92a2d655d6ce63f89273158c39ebaf51647e046901374083/input-2",
+      "sameIdentity": true,
+      "sameTarget": true,
+      "outsideMovedDirectory": true
+    },
+    {
+      "path": "/home/emsenn/.local/state/561-group/settlements/computer-deployment-engine/products/2c5c1a800878782f92a2d655d6ce63f89273158c39ebaf51647e046901374083/input-3",
+      "sameIdentity": true,
+      "sameTarget": true,
+      "outsideMovedDirectory": true
+    },
+    {
+      "path": "/home/emsenn/.local/state/561-group/settlements/computer-deployment-engine/products/2c5c1a800878782f92a2d655d6ce63f89273158c39ebaf51647e046901374083/input-4",
+      "sameIdentity": true,
+      "sameTarget": true,
+      "outsideMovedDirectory": true
+    }
+  ],
+  "effectScope": {
+    "oneNativeDirectoryRename": true,
+    "byteCopy": false,
+    "gcOrDeletion": false,
+    "capacityReclaimed": false,
+    "historicalMemberBytesOrAbsoluteStringsRewritten": false,
+    "legacyContentsAutoTracked": false,
+    "nativeWorldOrMachineConfigurationChange": false
+  },
+  "review": {
+    "independentProposal": {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/records/storage-correction-records/2026-10-20/independent-exact-legacy-fabrication-root-rename-source-receiving.json",
+      "sha256": "a0095b15c2e009ee3acfaad785cf613b5aa68f766bbd11fe53b17f84ea1856eb",
+      "bytes": 6969
+    },
+    "originalReviewedPlan": {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/original-fabrication-root-rename-proposal-v3.json",
+      "sha256": "64acd33283515a4f411ab612a9926dcedd8ee7c05d13c8826b0b40bba5d2a479",
+      "bytes": 24637
+    },
+    "actualStarted": {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/exact-fabrication-root-rename-started.json",
+      "sha256": "eb608b6b318c51eeee9c11b53b2fa284669cf6da03919104f7322000ebbb876e",
+      "bytes": 6203
+    },
+    "actualTerminal": {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/exact-fabrication-root-rename-terminal.json",
+      "sha256": "adc2f66b2dbd44a1acbf43bd61e131e0294af89401d0697b2b0a8e7d7356a860",
+      "bytes": 1462
+    },
+    "beforeWitnesses": {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/github-engineering-services-section/data/records/storage-correction-records/2026-10-20/original-fabrication-root-three-known-witnesses-before-rename.json",
+      "sha256": "06e548a3a19eb4504eff85ed4fd12cfe1f209e14a7a5f877fd280f3c38a61853",
+      "bytes": 1310
+    }
+  },
+  "consumerDisposition": "All old absolute executable/source/graph/worktree/prepared-stage bindings remain frozen and invalid for future execution. Future consumers must independently receive forward bindings to the actual owning path. Historical strings remain unchanged as evidence; no guarantee that retained graphs run after moving them.",
+  "limits": "This migrates only the exact original fabrication-record directory. Product GC roots above it, remote publisher roots and other home-state/service storage are outside this effect and require their own owner correction; no global absence or all-home-data-fixed claim.",
+  "independentActualReceiving": "PENDING_ROOT_AND_DISTINCT_RECEIVER"
+}

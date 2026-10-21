@@ -1,0 +1,51 @@
+{
+  "kind": "IndependentRootActualLegacyFabricationStorageReceiving",
+  "at": "2026-10-21T00:10:29.104170+00:00",
+  "receiver": "/root",
+  "producer": "/root/receive_finance_branches",
+  "verdict": "met",
+  "scope": "One exact original frozen fabrication-record directory custody rename; no rerun or source/machine/native-world changes",
+  "actualReceipt": {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/records/storage-correction-records/2026-10-20/legacy-fabrication-records-actual-rename-receiving.json",
+    "sha256": "1c05bb2376f409de9b20fd08cfacb46cf8cd21b43031404539228323fd65e6f8"
+  },
+  "sourceApprovalSHA256": "a0095b15c2e009ee3acfaad785cf613b5aa68f766bbd11fe53b17f84ea1856eb",
+  "planSHA256": "64acd33283515a4f411ab612a9926dcedd8ee7c05d13c8826b0b40bba5d2a479",
+  "actual": {
+    "oldRootAbsent": true,
+    "destination": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/data/logs/computer-deployment-fabrication-logs/20261019-bcf-tagged-release",
+    "device": 2096,
+    "inode": 17343545,
+    "uid": 1000,
+    "canonicalRealDirectory": true,
+    "threeNamedWitnesses": [
+      {
+        "relativePath": "forward-current-208a22f7-repaired-owner-formation.terminal.json",
+        "identityAndModeAndBytesHashUnchanged": true
+      },
+      {
+        "relativePath": "coordination/tagged-release-current-receiving-20261020.md",
+        "identityAndModeAndBytesHashUnchanged": true
+      },
+      {
+        "relativePath": "coordination/console-object-methods-correction/ghs024-original-publisher-program-proposal-v1/p24-lane-frontier.json",
+        "identityAndModeAndBytesHashUnchanged": true
+      }
+    ],
+    "allEightNamedOutsideRootEntriesUnchanged": true,
+    "actualNativeMvExit": 0,
+    "copyOrDeletionOrShimOrHistoryRewriteOrCapacityReclaim": false
+  },
+  "inspection": "Read exact recorded paths and three named file bodies; no directory member/tree enumeration, effects or move replay. Actual started/terminal/plan/witness/independent-source identities match.",
+  "recordsForSourcePublication": [
+    "independent-exact-legacy-fabrication-root-rename-source-receiving.json",
+    "legacy-fabrication-records-actual-rename-receiving.json",
+    "independent-root-actual-legacy-fabrication-storage-receiving.json"
+  ],
+  "privacy": "Only curated typed metadata and receiving; original raw/private legacy directory stays opaque untracked typed logs.",
+  "remaining": [
+    "Retained old absolute execution/source/worktree/graph bindings stay frozen until forward-path receiving.",
+    "Other home-state roots and actual live BCF host .local configuration remain separate open obligations.",
+    "No complete home inventory or installed/native useful-operation claim."
+  ]
+}
