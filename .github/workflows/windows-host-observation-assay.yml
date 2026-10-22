@@ -50,8 +50,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "SDK compilation failed" }
       - name: Receive a native Windows frame and exercise refusal paths
         run: |
-          & "build/Release/windows_host_pressure_assay.exe" > frame.json
+          # cmd redirects the consumer's bytes exactly; PowerShell's > re-encodes native output.
+          cmd /c "build\Release\windows_host_pressure_assay.exe > frame.json"
           if ($LASTEXITCODE -ne 0) { throw "Native ABI consumer failed" }
+          Write-Output "frame.json: $((Get-Item frame.json).Length) bytes"
           node test/windows-physical-observation-sdk-assay.mjs frame.json
           if ($LASTEXITCODE -ne 0) { throw "Native frame receiving failed" }
           node --test test/windows-physical-observation.test.mjs
