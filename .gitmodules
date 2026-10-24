@@ -5,5 +5,5 @@
 
 [submodule "linux-services-section"]
 	path = services/linux-services-section
-	url = https://github.com/red-cup-engineering/linux-services-section.git
+	url = https://github.com/red-cup-engineering/linux-engineering-services-section.git
 	branch = main
