@@ -4,18 +4,22 @@
   "description": "Inventories a bounded software territory as addressed filesystem, package, Git, deployment, and systemd observations.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/red-cup-engineering/computer-systems-engineering-services-section.git",
-    "directory": "services/computer-operating-system-services-section/services/software-inventory-service"
+    "url": "git+https://github.com/red-cup-engineering/computer-operating-system-engineering-services-section.git",
+    "directory": "services/software-inventory-service"
   },
   "type": "module",
   "license": "UNLICENSED",
   "exports": {
     ".": {
       "import": "./src/software-inventory.mjs"
+    },
+    "./source-drift": {
+      "import": "./src/source-drift.mjs"
     }
   },
   "bin": {
-    "inventory-software": "./scripts/inventory-software.mjs"
+    "inventory-software": "./scripts/inventory-software.mjs",
+    "observe-source-drift": "./scripts/observe-source-drift.mjs"
   },
   "files": [
     "scripts/",
