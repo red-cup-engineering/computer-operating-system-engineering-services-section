@@ -1,5 +1,5 @@
 {
-  "name": "@red-cup-engineering/computer-operating-system-services-section",
+  "name": "@red-cup-engineering/computer-operating-system-engineering-services-section",
   "version": "0.1.0",
   "type": "module",
   "description": "Operating-system effects over this repo's own machines: reads and seeds host state that no single sub-service under this section already owns.",
@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/red-cup-engineering/computer-operating-system-services-section.git"
+    "url": "git+https://github.com/red-cup-engineering/computer-operating-system-engineering-services-section.git"
   },
   "license": "MIT",
   "funding": {
