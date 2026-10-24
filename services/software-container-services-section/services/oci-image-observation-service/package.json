@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/javascript-node-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/json-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/uri-engineering-services-section": "workspace:*"
+    "@red-cup-engineering/javascript-node-services-section": "workspace:*",
+    "@red-cup-engineering/json-services-section": "workspace:*",
+    "@red-cup-engineering/uri-services-section": "workspace:*"
   },
   "files": [
     "README.md",
