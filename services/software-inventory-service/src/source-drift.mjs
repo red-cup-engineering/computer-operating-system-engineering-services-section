@@ -3,8 +3,10 @@
  * installed in a deployment's node_modules is compared with the house registry's latest release, the
  * version its repository's default branch declares, and the repository's open pull requests:
  *
- *   deployed-not-on-main   the deployment runs a version newer than its default branch declares (it was
- *                          released from source that is not on the branch)
+ *   deployed-not-on-main   the commit the registry records for the running version (its gitHead) is not
+ *                          on the repository's default branch: it was released from other source. (Release
+ *                          counters are stamped at publication and never committed, so the version a branch
+ *                          declares trails what it publishes; versions cannot decide this, commits do.)
  *   released-not-deployed  the registry holds a newer release than the deployment runs
  *   merged-not-released    the default branch declares a version newer than the registry's latest
  *   duplicate-versions     the deployment installs more than one version of the package
@@ -74,9 +76,9 @@ export function readDeployedPackages(nodeModules, { scopes = HOUSE_SCOPES } = {}
 }
 
 /**
- * The drift findings of one reading. `registry`: name -> {latest} (absent when unread);
- * `sources`: "owner/name" -> {versions: {directory: version}, pullRequests: [{number, createdAt, title}]}
- * (absent when unread). Findings name what is owed; packages with none are in sync.
+ * The drift findings of one reading. `registry`: name -> {latest, gitHeads: {version: commit}} (absent when
+ * unread); `sources`: "owner/name" -> {versions: {directory: version}, pullRequests: [{number, createdAt, title}],
+ * onMain: {commit: true|false}} (absent when unread). Findings name what is owed; packages with none are in sync.
  */
 export function classifySourceDrift({ deployed, registry, sources, now, stalePullRequestDays = STALE_PULL_REQUEST_DAYS }) {
   const findings = [];
@@ -95,10 +97,11 @@ export function classifySourceDrift({ deployed, registry, sources, now, stalePul
     const source = key === undefined ? undefined : sources.get(key);
     const main = source?.versions?.[repository?.directory ?? ""];
     if (main === undefined) findings.push({ kind: "source-unread", package: name, deployed: running, unread: repository === undefined ? "repository-undeclared" : "default-branch" });
-    else {
-      if (compareVersions(running, main) > 0) findings.push({ kind: "deployed-not-on-main", package: name, deployed: running, main, repository: key });
-      if (latest !== undefined && compareVersions(main, latest) > 0) findings.push({ kind: "merged-not-released", package: name, main, registry: latest, repository: key });
-    }
+    else if (latest !== undefined && compareVersions(main, latest) > 0) findings.push({ kind: "merged-not-released", package: name, main, registry: latest, repository: key });
+    const commit = registry.get(name)?.gitHeads?.[running];
+    const onMain = commit === undefined ? undefined : source?.onMain?.[commit];
+    if (onMain === false) findings.push({ kind: "deployed-not-on-main", package: name, deployed: running, commit, repository: key });
+    else if (onMain === undefined && source !== undefined) findings.push({ kind: "source-unread", package: name, deployed: running, unread: commit === undefined ? "deployed-commit" : "commit-ancestry" });
     if (source !== undefined && !reposSeen.has(key)) {
       reposSeen.add(key);
       const cutoff = Date.parse(now) - stalePullRequestDays * 86_400_000;
@@ -112,17 +115,21 @@ export function classifySourceDrift({ deployed, registry, sources, now, stalePul
   return Object.freeze({ packages: byName.size, installs: deployed.length, counts, findings });
 }
 
-/** Each package's registry latest, read from a npm-compatible registry's packuments; unread packages are absent. */
+/** Each package's registry latest and the commit each version was published from, read from a npm-compatible
+ *  registry's packuments; unread packages are absent. */
 export async function readRegistryLatest(names, { registry, fetch = globalThis.fetch, concurrency = 8 }) {
   const latest = new Map();
   const queue = [...names];
   const worker = async () => {
     for (let name = queue.shift(); name !== undefined; name = queue.shift()) {
       try {
-        const response = await fetch(`${registry.replace(/\/$/u, "")}/${name.replace("/", "%2F")}`, { headers: { accept: "application/vnd.npm.install-v1+json" } });
+        const response = await fetch(`${registry.replace(/\/$/u, "")}/${name.replace("/", "%2F")}`);
         if (!response.ok) continue;
         const packument = await response.json();
-        if (typeof packument?.["dist-tags"]?.latest === "string") latest.set(name, { latest: packument["dist-tags"].latest });
+        if (typeof packument?.["dist-tags"]?.latest !== "string") continue;
+        const gitHeads = Object.fromEntries(Object.entries(packument.versions ?? {})
+          .filter(([, manifest]) => typeof manifest?.gitHead === "string").map(([version, manifest]) => [version, manifest.gitHead]));
+        latest.set(name, { latest: packument["dist-tags"].latest, gitHeads });
       } catch { /* unread stays absent */ }
     }
   };
@@ -131,6 +138,26 @@ export async function readRegistryLatest(names, { registry, fetch = globalThis.f
 }
 
 const graphqlString = (value) => JSON.stringify(value);
+
+/** Whether each commit is on its repository's default branch (compare commit...HEAD: identical or ahead),
+ *  through `gh api`; a commit GitHub cannot compare stays absent. */
+export async function readCommitsOnMain(commitsByRepository, { gh = "gh", concurrency = 6 } = {}) {
+  const queue = [...commitsByRepository].flatMap(([key, commits]) => [...commits].map((commit) => [key, commit]));
+  const onMain = new Map();
+  const worker = async () => {
+    for (let item = queue.shift(); item !== undefined; item = queue.shift()) {
+      const [key, commit] = item;
+      try {
+        const { stdout } = await run(gh, ["api", `repos/${key}/compare/${commit}...HEAD`, "--jq", ".status"]);
+        const status = stdout.trim();
+        if (!onMain.has(key)) onMain.set(key, {});
+        onMain.get(key)[commit] = status === "identical" || status === "ahead";
+      } catch { /* not comparable: unknown */ }
+    }
+  };
+  await Promise.all(Array.from({ length: concurrency }, worker));
+  return onMain;
+}
 
 /** Each repository's default-branch package versions (per directory) and open pull requests, through `gh api graphql`. */
 export async function readGitHubSources(repositories, { gh = "gh" } = {}) {
@@ -172,11 +199,20 @@ export async function readGitHubSources(repositories, { gh = "gh" } = {}) {
 }
 
 /** Observe one deployment's source drift: `{kind, observedAt, nodeModules, registry, ...classification}`. */
-export async function observeSourceDrift({ nodeModules, registry = "https://registry.561.group", now = new Date().toISOString(), stalePullRequestDays, readRegistry = readRegistryLatest, readSources = readGitHubSources } = {}) {
+export async function observeSourceDrift({ nodeModules, registry = "https://registry.561.group", now = new Date().toISOString(), stalePullRequestDays, readRegistry = readRegistryLatest, readSources = readGitHubSources, readOnMain = readCommitsOnMain } = {}) {
   const deployed = readDeployedPackages(nodeModules);
   const names = [...new Set(deployed.map((item) => item.name))];
   const repositories = deployed.map((item) => item.repository).filter((repository) => repository !== undefined);
   const [latest, sources] = await Promise.all([readRegistry(names, { registry }), readSources(repositories)]);
+  // The commit each running version was published from, per repository, asked of its default branch.
+  const commits = new Map();
+  for (const item of deployed) {
+    const commit = latest.get(item.name)?.gitHeads?.[item.version];
+    if (commit === undefined || item.repository === undefined) continue;
+    const key = `${item.repository.owner}/${item.repository.name}`;
+    commits.set(key, (commits.get(key) ?? new Set()).add(commit));
+  }
+  for (const [key, onMain] of await readOnMain(commits)) if (sources.has(key)) sources.get(key).onMain = onMain;
   return Object.freeze({ kind: "source-drift-observation", observedAt: now, nodeModules, registry,
     ...classifySourceDrift({ deployed, registry: latest, sources, now, stalePullRequestDays }) });
 }

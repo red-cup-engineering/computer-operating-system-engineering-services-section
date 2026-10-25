@@ -33,14 +33,16 @@ test("each kind of drift is named, and a package in sync has no finding", () => 
       pkg("@x/twice", "1.0.0", "o/twice"), pkg("@x/twice", "1.1.0", "o/twice"),
       { name: "@x/nowhere", version: "1.0.0", repository: undefined },
     ],
-    registry: new Map([["@x/in-sync", { latest: "1.0.0" }], ["@x/ahead", { latest: "0.21.9-dev.993" }], ["@x/behind", { latest: "1.2.0" }],
-      ["@x/unreleased", { latest: "1.0.0" }], ["@x/twice", { latest: "1.1.0" }], ["@x/nowhere", { latest: "1.0.0" }]]),
+    registry: new Map([["@x/in-sync", { latest: "1.0.0", gitHeads: { "1.0.0": "s1" } }], ["@x/ahead", { latest: "0.21.9-dev.993", gitHeads: { "0.21.9-dev.993": "a1" } }],
+      ["@x/behind", { latest: "1.2.0", gitHeads: { "1.0.0": "b1" } }], ["@x/unreleased", { latest: "1.0.0", gitHeads: { "1.0.0": "u1" } }],
+      ["@x/twice", { latest: "1.1.0", gitHeads: { "1.1.0": "t1" } }], ["@x/nowhere", { latest: "1.0.0" }]]),
     sources: new Map([
-      ["o/sync", { versions: { "": "1.0.0" }, pullRequests: [{ number: 1, createdAt: "2026-10-23T00:00:00Z", title: "fresh" }] }],
-      ["o/ahead", { versions: { "": "0.21.9-dev.973" }, pullRequests: [] }],
-      ["o/behind", { versions: { "": "1.2.0" }, pullRequests: [] }],
-      ["o/unreleased", { versions: { "": "1.1.0" }, pullRequests: [{ number: 7, createdAt: "2026-10-01T00:00:00Z", title: "old" }] }],
-      ["o/twice", { versions: { "": "1.1.0" }, pullRequests: [] }],
+      // A branch declaring an older prerelease than it published is not drift: the commit decides.
+      ["o/sync", { versions: { "": "0.9.0" }, onMain: { s1: true }, pullRequests: [{ number: 1, createdAt: "2026-10-23T00:00:00Z", title: "fresh" }] }],
+      ["o/ahead", { versions: { "": "0.21.9-dev.973" }, onMain: { a1: false }, pullRequests: [] }],
+      ["o/behind", { versions: { "": "1.2.0" }, onMain: { b1: true }, pullRequests: [] }],
+      ["o/unreleased", { versions: { "": "1.1.0" }, onMain: { u1: true }, pullRequests: [{ number: 7, createdAt: "2026-10-01T00:00:00Z", title: "old" }] }],
+      ["o/twice", { versions: { "": "1.1.0" }, onMain: { t1: true }, pullRequests: [] }],
     ]),
   });
   const kinds = (name) => reading.findings.filter((finding) => finding.package === name || finding.repository === `o/${name}`).map((finding) => finding.kind).sort();
@@ -59,6 +61,9 @@ test("each kind of drift is named, and a package in sync has no finding", () => 
 test("an unread registry or branch is unknown, never in sync", () => {
   const reading = classifySourceDrift({ now: NOW, deployed: [pkg("@x/a", "1.0.0")], registry: new Map(), sources: new Map() });
   assert.deepEqual(reading.findings.map((finding) => [finding.kind, finding.unread]), [["source-unread", "registry"], ["source-unread", "default-branch"]]);
+  const uncompared = classifySourceDrift({ now: NOW, deployed: [pkg("@x/a", "1.0.0")], registry: new Map([["@x/a", { latest: "1.0.0", gitHeads: { "1.0.0": "c" } }]]),
+    sources: new Map([["o/r", { versions: { "": "1.0.0" }, pullRequests: [] }]]) });
+  assert.deepEqual(uncompared.findings.map((finding) => [finding.kind, finding.unread]), [["source-unread", "commit-ancestry"]]);
 });
 
 test("a pnpm node_modules is read for its house packages and their repositories", async () => {
@@ -73,10 +78,13 @@ test("a pnpm node_modules is read for its house packages and their repositories"
     install("left-pad@1.3.0", "", "left-pad", { name: "left-pad", version: "1.3.0" });
     const deployed = readDeployedPackages(root);
     assert.deepEqual(deployed, [{ name: "@red-cup-engineering/feltos", version: "0.21.9-dev.993", repository: { owner: "red-cup-engineering", name: "feltos", directory: "" } }]);
+    const asked = [];
     const observation = await observeSourceDrift({ nodeModules: root, now: NOW,
-      readRegistry: async () => new Map([["@red-cup-engineering/feltos", { latest: "0.21.9-dev.993" }]]),
-      readSources: async () => new Map([["red-cup-engineering/feltos", { versions: { "": "0.21.9-dev.973" }, pullRequests: [] }]]) });
+      readRegistry: async () => new Map([["@red-cup-engineering/feltos", { latest: "0.21.9-dev.993", gitHeads: { "0.21.9-dev.993": "74e102f9" } }]]),
+      readSources: async () => new Map([["red-cup-engineering/feltos", { versions: { "": "0.21.9-dev.973" }, pullRequests: [] }]]),
+      readOnMain: async (commits) => { asked.push(...[...commits].map(([key, set]) => [key, [...set]])); return new Map([["red-cup-engineering/feltos", { "74e102f9": true }]]); } });
     assert.equal(observation.kind, "source-drift-observation");
-    assert.deepEqual(observation.counts, { "deployed-not-on-main": 1 });
+    assert.deepEqual(asked, [["red-cup-engineering/feltos", ["74e102f9"]]]);
+    assert.deepEqual(observation.counts, {});
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
