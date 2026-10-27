@@ -1,0 +1,102 @@
+{
+  "id": "2026-10-27-computer-operating-system-services-section-normalization",
+  "kind": "misfiled-resources-register",
+  "by": "apply-services-section-normalization",
+  "date": "2026-10-27",
+  "moved": [
+    {
+      "from": "data/records/repository-projection-records/2026-10-21/independent-linux-section-source-projection-receiving.json",
+      "to": "data/records/service-records/repository-projection-service-records/2026-10-21/independent-linux-section-source-projection-receiving.json",
+      "rule": "eavt-data-law",
+      "sourceSha256": "f70a017dc2bda2f8bc2916a9420d81b472161a6fe26badf54ed2ebe0ba560244",
+      "destinationSha256": "f70a017dc2bda2f8bc2916a9420d81b472161a6fe26badf54ed2ebe0ba560244",
+      "byteIdentical": true
+    },
+    {
+      "from": "data/records/repository-projection-records/2026-10-21/independent-linux-systemd-source-projection-receiving.json",
+      "to": "data/records/service-records/repository-projection-service-records/2026-10-21/independent-linux-systemd-source-projection-receiving.json",
+      "rule": "eavt-data-law",
+      "sourceSha256": "f8611d4ac504e789b3231bf01854878831f18eaa825d97f1791ebeffa9624f96",
+      "destinationSha256": "f8611d4ac504e789b3231bf01854878831f18eaa825d97f1791ebeffa9624f96",
+      "byteIdentical": true
+    },
+    {
+      "from": "data/records/storage-correction-records/2026-10-20/independent-actual-legacy-fabrication-root-migration-receiving.json",
+      "to": "data/records/service-records/storage-correction-service-records/2026-10-20/independent-actual-legacy-fabrication-root-migration-receiving.json",
+      "rule": "eavt-data-law",
+      "sourceSha256": "a4f65615f3f63b6ad12d8601806d52260c87d47cd5a480faedf1b84a6f4e8711",
+      "destinationSha256": "a4f65615f3f63b6ad12d8601806d52260c87d47cd5a480faedf1b84a6f4e8711",
+      "byteIdentical": true
+    },
+    {
+      "from": "data/records/storage-correction-records/2026-10-20/independent-cde-current-main-minor-source-forward-receiving.json",
+      "to": "data/records/service-records/storage-correction-service-records/2026-10-20/independent-cde-current-main-minor-source-forward-receiving.json",
+      "rule": "eavt-data-law",
+      "sourceSha256": "22b1929f17a147edabe472b4386c77b0536a8a7c926e244706d7d609752d92a0",
+      "destinationSha256": "22b1929f17a147edabe472b4386c77b0536a8a7c926e244706d7d609752d92a0",
+      "byteIdentical": true
+    },
+    {
+      "from": "data/records/storage-correction-records/2026-10-20/independent-cde-owned-fixture-final-source-native-receiving.json",
+      "to": "data/records/service-records/storage-correction-service-records/2026-10-20/independent-cde-owned-fixture-final-source-native-receiving.json",
+      "rule": "eavt-data-law",
+      "sourceSha256": "bb8ca552e409413806d81c9f97a53eb3f25fd82df652ef7afc46e26c7af35c35",
+      "destinationSha256": "bb8ca552e409413806d81c9f97a53eb3f25fd82df652ef7afc46e26c7af35c35",
+      "byteIdentical": true
+    },
+    {
+      "from": "data/records/storage-correction-records/2026-10-20/independent-cde-owned-storage-source-native-receiving.json",
+      "to": "data/records/service-records/storage-correction-service-records/2026-10-20/independent-cde-owned-storage-source-native-receiving.json",
+      "rule": "eavt-data-law",
+      "sourceSha256": "fa15f3a234e453d84c638b0b42ce392078aac57859e3f978b9ee9274e3c56f64",
+      "destinationSha256": "fa15f3a234e453d84c638b0b42ce392078aac57859e3f978b9ee9274e3c56f64",
+      "byteIdentical": true
+    },
+    {
+      "from": "data/records/storage-correction-records/2026-10-20/independent-cos-cde-curated-record-source-receiving.json",
+      "to": "data/records/service-records/storage-correction-service-records/2026-10-20/independent-cos-cde-curated-record-source-receiving.json",
+      "rule": "eavt-data-law",
+      "sourceSha256": "cc2adf7652884b175a256815f7c403ef5ac2787beb1c372684f5ebc56ac5793a",
+      "destinationSha256": "cc2adf7652884b175a256815f7c403ef5ac2787beb1c372684f5ebc56ac5793a",
+      "byteIdentical": true
+    },
+    {
+      "from": "data/records/storage-correction-records/2026-10-20/independent-exact-legacy-fabrication-root-rename-source-receiving.json",
+      "to": "data/records/service-records/storage-correction-service-records/2026-10-20/independent-exact-legacy-fabrication-root-rename-source-receiving.json",
+      "rule": "eavt-data-law",
+      "sourceSha256": "a0095b15c2e009ee3acfaad785cf613b5aa68f766bbd11fe53b17f84ea1856eb",
+      "destinationSha256": "a0095b15c2e009ee3acfaad785cf613b5aa68f766bbd11fe53b17f84ea1856eb",
+      "byteIdentical": true
+    },
+    {
+      "from": "data/records/storage-correction-records/2026-10-20/independent-root-actual-legacy-fabrication-storage-receiving.json",
+      "to": "data/records/service-records/storage-correction-service-records/2026-10-20/independent-root-actual-legacy-fabrication-storage-receiving.json",
+      "rule": "eavt-data-law",
+      "sourceSha256": "71ac59b95cc34601d2d0f6fa45e651c50031e3e727db4131bf4588c211674f1b",
+      "destinationSha256": "71ac59b95cc34601d2d0f6fa45e651c50031e3e727db4131bf4588c211674f1b",
+      "byteIdentical": true
+    },
+    {
+      "from": "data/records/storage-correction-records/2026-10-20/legacy-fabrication-records-actual-rename-receiving.json",
+      "to": "data/records/service-records/storage-correction-service-records/2026-10-20/legacy-fabrication-records-actual-rename-receiving.json",
+      "rule": "eavt-data-law",
+      "sourceSha256": "1c05bb2376f409de9b20fd08cfacb46cf8cd21b43031404539228323fd65e6f8",
+      "destinationSha256": "1c05bb2376f409de9b20fd08cfacb46cf8cd21b43031404539228323fd65e6f8",
+      "byteIdentical": true
+    }
+  ],
+  "owed": [
+    {
+      "rule": "stray-top-level",
+      "reason": "LICENSE/ is not an entry the services-section law knows; its owner decides where it belongs",
+      "directory": ".",
+      "count": 1
+    },
+    {
+      "rule": "stray-top-level",
+      "reason": "native/ is not an entry the services-section law knows; its owner decides where it belongs",
+      "directory": "native/windows-host-pressure",
+      "count": 4
+    }
+  ]
+}
