@@ -2,10 +2,9 @@
 // into world.eavt: constitutes each service located-in its machine, asserts the record's desired
 // "running", and appends observed "stopped" wherever the live read disagrees — the two claims
 // fold to a held ⊤ exactly where desired and observed diverge. Run: node scripts/seed-systemd-
-// services.mjs [recordPath] [tracePath] (defaults below; overridable by argv or env vars).
+// services.mjs <recordPath> <tracePath> (or SEED_SYSTEMD_SERVICES_RECORD_PATH and LAGOON_WORLD_TRACE_PATH).
 
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { constitute } from "@red-cup-engineering/eavt-services-section/constitute-entity";
 import { appendEavtRow } from "@red-cup-engineering/eavt-services-section/append-eavt-row";
@@ -16,36 +15,10 @@ import { supersedeEavtRows } from "@red-cup-engineering/eavt-services-section/su
 import { observeUnitInventory } from "@red-cup-engineering/systemd-unit-inventory-observation-service";
 import { runSystemctl } from "@red-cup-engineering/systemd-unit-inventory-observation-service/run-systemctl";
 
-// Repo root: walk up from this file until a directory holding .git is found — no hardcoded
-// absolute path, so this script works from any checkout location. The same tiny utility as
-// FeltOS's scripts/seed-world.mjs carries (each mjs script under this repo's ad hoc
-// convention of walking to its own repo root rather than sharing one dependency for it).
-function findRepoRoot(startDir) {
-  let dir = startDir;
-  for (;;) {
-    if (existsSync(path.join(dir, ".git"))) return dir;
-    const parent = path.dirname(dir);
-    if (parent === dir) throw new Error("seed-systemd-services: could not find repo root (no .git above " + startDir + ")");
-    dir = parent;
-  }
-}
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const repoRoot = findRepoRoot(__dirname);
-
-const DEFAULT_RECORD_PATH = path.join(
-  repoRoot,
-  "lib/emsenn/services/561-group/services/561-group-services-section/data/records/2026-08-31-bare-cedar-fog-desired-services.json",
-);
-// The world trace is DEPLOY's (computer-deployment-engine's), not this script's own app
-// root's — LAGOON is the one seat licensed to hold world state; this script only seeds it.
-const DEFAULT_TRACE_PATH = path.join(
-  repoRoot,
-  "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/apps/computer-deployment-engine/data/state/world-state/world.eavt",
-);
-
-const recordPath = process.argv[2] || process.env.SEED_SYSTEMD_SERVICES_RECORD_PATH || DEFAULT_RECORD_PATH;
-const tracePath = process.argv[3] || process.env.LAGOON_WORLD_TRACE_PATH || DEFAULT_TRACE_PATH;
+// The record and the world trace are named by the caller: the trace is the deployment engine's
+// world state (this script only seeds it), so no default path into another service's data is built here.
+const recordPath = process.argv[2] || process.env.SEED_SYSTEMD_SERVICES_RECORD_PATH;
+const tracePath = process.argv[3] || process.env.LAGOON_WORLD_TRACE_PATH;
 
 /**
  * Reads a {machine, services: [{name}, ...]} desired-services record off disk.
@@ -243,6 +216,7 @@ export function seed(recordPath, tracePath) {
 
 // Only run when invoked directly (so tests or other scripts can import `seed` without side effects).
 if (import.meta.url === `file://${process.argv[1]}`) {
+  if (!recordPath || !tracePath) throw new TypeError("seed-systemd-services: name the desired-services record and the world trace (argv or environment)");
   const results = seed(recordPath, tracePath);
   for (const { kind, skipped, detail } of results) {
     console.log(`${skipped ? "skip (already present)" : "appended"}: ${kind} ${detail}`);
