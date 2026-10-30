@@ -8,3 +8,6 @@
 <!-- 561-group-standards:badges:end -->
 
 Operating-system effects over this repo's own machines: reads and seeds host state that no single sub-service under this section already owns.
+
+## Earlier work
+- `lib/legacy/2026-06-28-information-coherence-kernel`: Earlier information coherence kernel. Origin: 561-group/bare-cedar-fog `services/information-coherence-kernel`, restored from commit 7951a6e on 2026-06-28.
