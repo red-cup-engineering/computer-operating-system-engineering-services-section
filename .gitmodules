@@ -1,8 +1,3 @@
-[submodule "services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/apps/computer-deployment-engine"]
-	path = apps/computer-deployment-engine
-	url = https://github.com/red-cup-engineering/computer-deployment-engine.git
-	branch = main
-
 [submodule "linux-services-section"]
 	path = services/linux-services-section
 	url = https://github.com/red-cup-engineering/linux-engineering-services-section.git
